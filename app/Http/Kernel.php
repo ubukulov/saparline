@@ -4,6 +4,7 @@ namespace App\Http;
 
 use App\Http\Middleware\AdminCheck;
 use App\Http\Middleware\ApiCheck;
+use App\Http\Middleware\Cashbox;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -67,5 +68,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'apiCheck' => ApiCheck::class,
         'adminCheck' => AdminCheck::class,
+        'cashbox' => Cashbox::class,
     ];
 }

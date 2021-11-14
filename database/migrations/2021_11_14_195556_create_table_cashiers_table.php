@@ -15,7 +15,18 @@ class CreateTableCashiersTable extends Migration
     {
         Schema::create('cashiers', function (Blueprint $table) {
             $table->id();
+            $table->string('username')->unique();
+            $table->string('password');
+            $table->unsignedBigInteger('city_id');
+            $table->string('first_name')->nullable();
+            $table->string('last_name')->nullable();
+            $table->unsignedTinyInteger('active')->default(1);
             $table->timestamps();
+
+            $table->foreign('city_id')
+                ->references('id')
+                ->on('cities')
+                ->onDelete('cascade');
         });
     }
 
