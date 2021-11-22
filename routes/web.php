@@ -12,16 +12,6 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::name('cashbox.')->namespace('Cashbox')->group(function(){
-    Route::any('cashbox', 'LoginController@login')->name('login');
-    Route::get('/cashbox/logout', 'LoginController@logout')->name('logout');
-
-    Route::group(['prefix' => 'cashbox', 'middleware' => 'cashbox'], function(){
-        Route::get('/cabinet', 'CashboxController@cabinet')->name('cabinet');
-    });
-
-
-});
 
 
 Route::name('admin.')->namespace('Admin')->group(function () {
@@ -99,5 +89,12 @@ Route::name('admin.')->namespace('Admin')->group(function () {
         });
 
         Route::any('setting', 'MainController@setting')->name('setting');
+
+        Route::resource('company', 'CompanyController');
     });
+});
+
+# Cashier
+Route::group(['prefix' => 'cashier', 'namespace' => 'Cashier'], function(){
+	Route::post('/login', 'CashierController@login');
 });

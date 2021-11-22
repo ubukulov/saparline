@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
+use Closure;
 
 class VerifyCsrfToken extends Middleware
 {
@@ -12,6 +13,16 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        //
+        //''
     ];
+	
+	public function handle($request, Closure $next)
+	{
+		if ($request->getHost() == 'http://localhost:8080/') {
+			// skip CSRF check
+			return $next($request);
+		}
+
+		return parent::handle($request, $next);
+	}
 }

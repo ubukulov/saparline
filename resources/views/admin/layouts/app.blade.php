@@ -145,6 +145,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{route('admin.company.index')}}">
+                        <span>Список компании</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{route('admin.travel.index')}}">
                         <span>Промежуточный остоновки</span>
                     </a>
