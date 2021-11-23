@@ -68,6 +68,5 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'apiCheck' => ApiCheck::class,
         'adminCheck' => AdminCheck::class,
-        'cashbox' => Cashbox::class,
     ];
 }

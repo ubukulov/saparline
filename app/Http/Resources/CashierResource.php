@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CashboxResource extends JsonResource
+class CashierResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

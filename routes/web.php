@@ -91,10 +91,12 @@ Route::name('admin.')->namespace('Admin')->group(function () {
         Route::any('setting', 'MainController@setting')->name('setting');
 
         Route::resource('company', 'CompanyController');
-    });
-});
 
-# Cashier
-Route::group(['prefix' => 'cashier', 'namespace' => 'Cashier'], function(){
-	Route::post('/login', 'CashierController@login');
+        # Cars
+        Route::name('car.')->prefix('cars')->group(function(){
+            Route::get('/', 'CarController@index')->name('index');
+            Route::get('/{id}/edit', 'CarController@edit')->name('edit');
+            Route::post('/{id}/update', 'CarController@update')->name('update');
+        });
+    });
 });

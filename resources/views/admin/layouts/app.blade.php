@@ -150,6 +150,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{route('admin.car.index')}}">
+                        <span>Список машины</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{route('admin.travel.index')}}">
                         <span>Промежуточный остоновки</span>
                     </a>

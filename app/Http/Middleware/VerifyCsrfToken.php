@@ -15,14 +15,4 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         //''
     ];
-	
-	public function handle($request, Closure $next)
-	{
-		if ($request->getHost() == 'http://localhost:8080/') {
-			// skip CSRF check
-			return $next($request);
-		}
-
-		return parent::handle($request, $next);
-	}
 }

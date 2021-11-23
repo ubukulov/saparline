@@ -9,6 +9,12 @@ use App\Models\ChatUser;
 
 
 Route::prefix('v1')->namespace('Api')->group(function () {
+	# Cashier
+	Route::group(['prefix' => 'cashier'], function(){
+		Route::post('login', 'CashierController@login');
+		Route::get('companies/list', 'CashierController@getCompanies');
+		Route::get('companies/{id}/get-cars-list', 'CashierController@getCompanyCarsList');
+	});
 
     Route::post('profile/register','UserController@register');
     Route::post('profile/phone-confirmation','UserController@phoneConfirmation');
@@ -56,5 +62,3 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
     });
 });
-
-
