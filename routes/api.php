@@ -14,6 +14,10 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 		Route::post('login', 'CashierController@login');
 		Route::get('companies/list', 'CashierController@getCompanies');
 		Route::get('companies/{id}/get-cars-list', 'CashierController@getCompanyCarsList');
+		Route::get('cities/list', 'CashierController@getCities');
+		Route::get('cities/{id}/get-stations', 'CashierController@getCityStationsList');
+		Route::post('create-trip', 'CashierController@createTripByCashier');
+		Route::get('get-travels-upcoming', 'CashierController@travelUpcoming');
 	});
 
     Route::post('profile/register','UserController@register');
