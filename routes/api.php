@@ -37,6 +37,8 @@ Route::prefix('v1')->namespace('Api')->group(function () {
     Route::get('stations','UserController@stations');
     Route::get('carTypes','UserController@carTypes');
     Route::get('travel-stations','UserController@travelStations');
+    Route::get('travel-stations','UserController@travelStations');
+
 
     Route::middleware(['apiCheck'])->group(function () {
         Route::post('profile/logout','UserController@logout');
@@ -44,6 +46,10 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         Route::post('profile/edit','UserController@edit');
         Route::post('profile/role/passenger','UserController@rolePassenger');
         Route::post('profile/role/driver','UserController@roleDriver');
+        Route::get('profile/carTravels','UserController@carTravels');
+        Route::get('profile/cars','UserController@cars');
+
+        Route::post('profile/addCar','UserController@addCar');
 
         Route::post('travel/add','UserController@travelAdd');
         Route::post('travel/delete','UserController@travelDelete');
@@ -53,16 +59,22 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
         Route::get('travel/show','UserController@travelShow');
 
-        Route::get('my-tickets','UserController@myTickets');
+        Route::get('my-tickets-new','UserController@myTickets');
+        Route::get('my-tickets-groupped','UserController@myTicketsGroupped');
         Route::get('order-histories','UserController@orderHistories');
 
         Route::post('travel/place/reservation','UserController@placeReservation');
         Route::post('travel/place/cancel','UserController@placeCancel');
         Route::post('travel/place/edit','UserController@travelPlaceEdit');
 
-        Route::get('travel/histories','UserController@travelHistories');
         Route::get('travel/upcoming','UserController@travelUpcoming');
         Route::get('travel/my-passengers','UserController@travelMyPassengers');
+        Route::get('travel/my-passengers-groupped','UserController@travelMyPassengersGroupped');
 
+        Route::get('feedback/list','UserController@feedbackList');
+        Route::post('toFeedback','UserController@toFeedback');
+
+        Route::get('call', 'UserController@call');
+        Route::get('order/take/{id}', 'UserController@orderTake');
     });
 });

@@ -147,23 +147,38 @@ class UserController extends Controller
     }
 
 
-    public function confirmation(Request $request){
+    public function confirmation()
+    {
 
-        $data['drivers'] = User::where('role','driver')
+        $data['drivers'] = Car::where(['is_confirmed' => 0])
+            ->with('user')
+            ->join('car_types','car_types.id','cars.car_type_id')
+            ->orderBy('cars.id','desc')
+            ->select('cars.*', 'car_types.name as car_type','car_types.count_places','cars.state_number')
+            ->paginate(50);
+
+        return response()->view('admin.user.confirmation',$data);
+
+        /*$data['drivers'] = User::where('role','driver')
             ->where('confirmation','waiting')
             ->join('cars','cars.user_id','users.id')
             ->join('car_types','car_types.id','cars.car_type_id')
             ->orderBy('users.id','desc')
             ->select('users.*','car_types.name as car_type','car_types.count_places','cars.state_number')
             ->paginate(50);
-        return response()->view('admin.user.confirmation',$data);
+        return response()->view('admin.user.confirmation',$data);*/
 
     }
-    public function confirmationConfirm($id){
+    public function confirmationConfirm($car_id){
 
-        User::where('id',$id)->update(['confirmation' => 'confirm']);
+        //User::where('id',$id)->update(['confirmation' => 'confirm']);
+        $car = Car::findOrFail($car_id);
+        $car->is_confirmed = 1;
+        $car->save();
 
-        Firebase::sendMultiple(User::where('id',$id)
+        $user = $car->user;
+
+        Firebase::sendMultiple(User::where('id',$user->id)
             ->where('push',1)
             ->select('device_token')
             ->pluck('device_token')
@@ -171,7 +186,7 @@ class UserController extends Controller
             'title' => 'Saparline',
             'body' => "ваши данные подтверждены",
             'type' => 'driver_confirmation',
-            'user_id' => $id,
+            'user_id' => $user->id,
         ]);
 
 

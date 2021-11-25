@@ -23,7 +23,7 @@ Route::name('admin.')->namespace('Admin')->group(function () {
         Route::get('calculatePlace', 'UserController@calculatePlace')->name("calculatePlace");
 
 
-        Route::name('car_travel.')->prefix('car_travel')->group(function (){
+        Route::name('car_travel.')->prefix('car_travel')->group(function () {
             Route::get('/', 'UserController@travels')->name('list');
             Route::get('orders', 'UserController@orders')->name("orders");
             Route::get('order/take/{id}', 'UserController@orderTake')->name("orderTake");
@@ -31,7 +31,7 @@ Route::name('admin.')->namespace('Admin')->group(function () {
             Route::get('cancelOrders', 'UserController@cancelOrders')->name("cancelOrders");
             Route::get('order/cancel/{id}', 'UserController@orderCancel')->name("orderCancel");
         });
-        Route::name('user.')->prefix('user')->group(function (){
+        Route::name('user.')->prefix('user')->group(function () {
             Route::get('drivers', 'UserController@drivers')->name('drivers');
             Route::get('passengers', 'UserController@passengers')->name('passengers');
             Route::get('driver/{id}', 'UserController@driver')->name('driver');
@@ -40,15 +40,26 @@ Route::name('admin.')->namespace('Admin')->group(function () {
             Route::get('edit/{id}', 'UserController@edit')->name('edit');
             Route::post('update/{id}', 'UserController@update')->name('update');
             Route::get('destroy/{id}', 'UserController@destroy')->name('destroy');
+            Route::get('destroyPassenger/{id}', 'UserController@destroyPassenger')->name('destroyPassenger');
 
-            Route::get('drivers/confirmation','UserController@confirmation')->name('confirmation');
-            Route::get('drivers/confirmation/confirm/{id}','UserController@confirmationConfirm')->name('confirmation.confirm');
-            Route::get('drivers/confirmation/reject/{id}','UserController@confirmationReject')->name('confirmation.reject');
+            Route::get('drivers/confirmation', 'UserController@confirmation')->name('confirmation');
+            Route::post('drivers/addCar', 'UserController@addCar')->name('addCar');
+
+            Route::get('drivers/confirmation/confirm/{id}', 'UserController@confirmationConfirm')->name('confirmation.confirm');
+            Route::get('drivers/confirmation/reject/{id}', 'UserController@confirmationReject')->name('confirmation.reject');
+
+
+            Route::get('drivers/newCars', 'UserController@newCars')->name('newCars');
+            Route::get('car/{id}', 'UserController@car')->name('car');
+            Route::get('carDetail/{id}', 'UserController@carDetail')->name('carDetail');
+            Route::get('drivers/newCar/confirm/{id}', 'UserController@newCarConfirm')->name('newCar.confirm');
+            Route::get('drivers/newCar/reject/{id}', 'UserController@newCarReject')->name('newCar.reject');
+
+
         });
 
 
-
-        Route::name('city.')->prefix('city')->group(function (){
+        Route::name('city.')->prefix('city')->group(function () {
             Route::get('index', 'CityController@index')->name('index');
             Route::get('add', 'CityController@add')->name('add');
             Route::post('create', 'CityController@create')->name('create');
@@ -57,7 +68,7 @@ Route::name('admin.')->namespace('Admin')->group(function () {
             Route::get('destroy/{id}', 'CityController@destroy')->name('destroy');
         });
 
-        Route::name('station.')->prefix('station')->group(function (){
+        Route::name('station.')->prefix('station')->group(function () {
             Route::get('index/{id}', 'StationController@index')->name('index');
             Route::get('add/{id}', 'StationController@add')->name('add');
             Route::post('create', 'StationController@create')->name('create');
@@ -67,17 +78,23 @@ Route::name('admin.')->namespace('Admin')->group(function () {
         });
 
 
-        Route::name('travel.')->prefix('travel')->group(function (){
+        Route::name('travel.')->prefix('travel')->group(function () {
             Route::get('index/', 'TravelController@index')->name('index');
             Route::get('add/', 'TravelController@add')->name('add');
             Route::post('create', 'TravelController@create')->name('create');
             Route::get('edit/{id}', 'TravelController@edit')->name('edit');
             Route::post('update/{id}', 'TravelController@update')->name('update');
             Route::get('destroy/{id}', 'TravelController@destroy')->name('destroy');
+
+            Route::get('carTypes', 'TravelController@carTypes')->name('carTypes');
+            Route::get('addCarType', 'TravelController@addCarType')->name('addCarType');
+            Route::get('carTypeDestroy', 'TravelController@carTypeDestroy')->name('carTypeDestroy');
+
+
         });
 
 
-        Route::name('travel_station.')->prefix('travel_station')->group(function (){
+        Route::name('travel_station.')->prefix('travel_station')->group(function () {
             Route::get('index/{id}', 'TravelStationController@index')->name('index');
             Route::get('add/{id}', 'TravelStationController@add')->name('add');
             Route::post('create', 'TravelStationController@create')->name('create');
@@ -89,6 +106,7 @@ Route::name('admin.')->namespace('Admin')->group(function () {
         });
 
         Route::any('setting', 'MainController@setting')->name('setting');
+        Route::post('sendMultiple', 'MainController@sendMultiple');
 
         Route::resource('company', 'CompanyController');
 

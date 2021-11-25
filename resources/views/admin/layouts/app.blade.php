@@ -159,6 +159,11 @@
                         <span>Промежуточный остоновки</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{route('admin.travel.carTypes')}}">
+                        <span>Типы транспортов</span>
+                    </a>
+                </li>
 
             </ul>
         </div>

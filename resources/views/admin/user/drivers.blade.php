@@ -30,6 +30,8 @@
                                 <th>Тип авто</th>
                                 <th>Гос номер авто</th>
                                 <th>Количество мест</th>
+                                <th>Kaspi</th>
+                                <th>Full name</th>
                                 <th>Регистрация</th>
                             </tr>
                             </thead>
@@ -42,9 +44,11 @@
                                     <td>{{$user->car_type}}</td>
                                     <td>{{$user->state_number}}</td>
                                     <td>{{$user->count_places}}</td>
+                                    <td>{{$user->bank_card}}</td>
+                                    <td>{{$user->card_fullname}}</td>
                                     <td>{{$user->created_at}}</td>
                                     <td>
-                                        <a href="{{route('admin.user.driver',$user->id)}}" class=" waves-effect btn btn-primary"><i class="material-icons">visibility</i></a>
+                                        <a href="{{route('admin.user.driver', ['id' => $user->id])}}" class=" waves-effect btn btn-primary"><i class="material-icons">visibility</i></a>
                                         <a href="{{route('admin.user.edit',$user->id)}}" class="waves-effect btn btn-success"><i class="material-icons">mode_edit</i></a>
                                         <a href="{{route('admin.user.destroy',$user->id)}}" onclick="return confirm('Вы уверены что хотите удалить?')" class="waves-effect btn btn-danger"><i class="material-icons">delete</i></a>
                                     </td>

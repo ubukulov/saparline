@@ -5,13 +5,13 @@
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="card">
                 <div class="header">
-                    <h2 >Пассажиры</h2>
+                    <h2>Транспорты</h2>
                 </div>
 
                 <div class="header">
-                    <form  action="{{route('admin.user.passengers')}}">
+                    <form  action="{{route('admin.user.drivers')}}">
                         @csrf
-                        <input type="search" name="search" value="{{$search}}" placeholder="текст поиска...">
+{{--                        <input type="search" name="search" value="{{$search}}" placeholder="текст поиска...">--}}
                         <button>показать</button>
 
                     </form>
@@ -27,20 +27,26 @@
                                 <th>ID</th>
                                 <th>Имя</th>
                                 <th>Телефон номер</th>
+                                <th>Тип авто</th>
+                                <th>Гос номер авто</th>
+                                <th>Количество мест</th>
                                 <th>Регистрация</th>
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach($users as $user)
+                            @foreach($cars as $car)
                                 <tr>
-                                    <td>{{$user->id}}</td>
-                                    <td>{{$user->name}}</td>
-                                    <td>{{$user->phone}}</td>
-                                    <td>{{$user->created_at}}</td>
+                                    <td>{{$car->carId}}</td>
+                                    <td>{{$car->name}}</td>
+                                    <td>{{$car->phone}}</td>
+                                    <td>{{$car->car_type}}</td>
+                                    <td>{{$car->state_number}}</td>
+                                    <td>{{$car->count_places}}</td>
+                                    <td>{{$car->created_at}}</td>
                                     <td>
-                                        <a href="{{route('admin.user.passenger',$user->id)}}" class=" waves-effect btn btn-primary"><i class="material-icons">visibility</i></a>
-                                        <a href="{{route('admin.user.edit',$user->id)}}" class="waves-effect btn btn-success"><i class="material-icons">mode_edit</i></a>
-                                        <a href="{{route('admin.user.destroyPassenger',$user->id)}}" onclick="return confirm('Вы уверены что хотите удалить?')" class="waves-effect btn btn-danger"><i class="material-icons">delete</i></a>
+                                        <a href="{{route('admin.user.carDetail',$car->carId)}}" class=" waves-effect btn btn-primary"><i class="material-icons">visibility</i></a>
+                                        <a href="{{route('admin.user.newCar.confirm',$car->carId)}}" onclick="return confirm('Вы уверены?')" class="waves-effect btn btn-info"><i class="material-icons">add_circle</i></a>
+                                        <a href="{{route('admin.user.newCar.reject',$car->carId)}}" onclick="return confirm('Вы уверены ?')" class="waves-effect btn btn-danger"><i class="material-icons">block</i></a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -48,7 +54,7 @@
                         </table>
                     </div>
                 </div>
-                {{$users->links()}}
+                {{$cars->links()}}
 
             </div>
         </div>

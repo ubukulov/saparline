@@ -26,4 +26,9 @@ class Car extends Model
 
         return 'Не определено';
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

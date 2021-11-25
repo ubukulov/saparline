@@ -6,6 +6,7 @@ use App\Http\Resources\UserResource;
 use App\Models\Car;
 use App\Models\CarTravel;
 use App\Models\CarTravelPlace;
+use App\Models\CarType;
 use App\Models\City;
 use App\Models\Travel;
 use App\Models\User;
@@ -71,6 +72,34 @@ class TravelController extends Controller
         $l = Travel::findOrFail($id);
         $l->delete();
         return redirect()->back();
+    }
+
+    public function carTypes(){
+        return view('admin.carTypesIndex');
+    }
+
+    public function addCarType(Request $request){
+        $rules = [
+            'name'=> 'required',
+            'count_places'=> 'required|unique:car_types,count_places',
+        ];
+        $messages = [
+
+        ];
+        $validator = $this->validator($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            return back()->withErrors($validator->errors());
+        }
+        $carType = new CarType();
+        $carType->name = $request['name'];
+        $carType->count_places = $request['count_places'];
+        $carType->save();
+
+        return back()->withMessage('success');
+    }
+
+    public function carTypeDestroy(Request $request){
+           return back();
     }
 
 

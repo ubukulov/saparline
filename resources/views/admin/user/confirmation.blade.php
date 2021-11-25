@@ -8,8 +8,6 @@
                     <h2>Новые Водители</h2>
                 </div>
 
-
-
                 <div class="body">
 
                     <div class="table-responsive">
@@ -29,14 +27,14 @@
                             @foreach($drivers as $driver)
                                 <tr>
                                     <td>{{$driver->id}}</td>
-                                    <td>{{$driver->name}}</td>
-                                    <td>{{$driver->phone}}</td>
+                                    <td>{{$driver->user->name}}</td>
+                                    <td>{{$driver->user->phone}}</td>
                                     <td>{{$driver->car_type}}</td>
                                     <td>{{$driver->state_number}}</td>
                                     <td>{{$driver->count_places}}</td>
                                     <td>{{$driver->created_at}}</td>
                                     <td>
-                                        <a href="{{route('admin.user.driver',$driver->id)}}" class=" waves-effect btn btn-primary"><i class="material-icons">visibility</i></a>
+                                        <a href="{{route('admin.user.driver',$driver->user->id)}}" class=" waves-effect btn btn-primary"><i class="material-icons">visibility</i></a>
                                         <a href="{{route('admin.user.confirmation.confirm',$driver->id)}}" onclick="return confirm('Вы уверены?')" class="waves-effect btn btn-info"><i class="material-icons">add_circle</i></a>
                                         <a href="{{route('admin.user.confirmation.reject',$driver->id)}}" onclick="return confirm('Вы уверены ?')" class="waves-effect btn btn-danger"><i class="material-icons">block</i></a>
                                     </td>
