@@ -9,7 +9,7 @@ class Company extends Model
     protected $table = 'companies';
 
     protected $fillable = [
-        'title', 'address', 'phone', 'email', 'password', 'bin'
+        'title', 'address', 'phone', 'email', 'password', 'bin', 'type_id'
     ];
 
     protected $dates = [

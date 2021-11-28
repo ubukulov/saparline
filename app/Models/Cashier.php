@@ -12,7 +12,8 @@ class Cashier extends Authenticatable
 	use Notifiable;
 	
     protected $fillable = [
-        'username', 'password', 'city_id', 'first_name', 'last_name', 'active'
+        'email', 'password', 'city_id', 'first_name', 'last_name', 'active', 'station_id', 'company_name', 'company_id',
+		'phone', 'type_id'
     ];
 
     protected $hidden = ['created_at', 'updated_at'];

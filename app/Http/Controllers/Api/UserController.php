@@ -1279,6 +1279,9 @@ class UserController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors()->first(), 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
+		
+		//$car = Car::findOrFail($request['carId']);
+		//$user_id = $car->user_id;
 
 
         $places = CarTravelPlaceOrder::join('car_travel', 'car_travel_place_orders.car_travel_id', 'car_travel.id')
@@ -1458,7 +1461,7 @@ class UserController extends Controller
     {
         $cars = Car::where('user_id', $request['user']->id)
             ->join('users', 'users.id', 'cars.user_id')
-            ->select('cars.*', 'users.name', 'users.surname')
+            ->select('cars.*', 'users.name', 'users.surname'/*, 'users.phone'*/)
             ->limit(100)
             ->get();
         return response()->json($cars, 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);

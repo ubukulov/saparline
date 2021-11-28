@@ -21,6 +21,7 @@ class CreateTableCompanies extends Migration
             $table->string('email')->unique();
             $table->string('password')->nullable();
             $table->string('bin')->nullable();
+			$table->unsignedTinyInteger('type_id')->default(1);
             $table->timestamps();
         });
     }

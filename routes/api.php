@@ -11,13 +11,19 @@ use App\Models\ChatUser;
 Route::prefix('v1')->namespace('Api')->group(function () {
 	# Cashier
 	Route::group(['prefix' => 'cashier'], function(){
+		# Создать поездки
 		Route::post('login', 'CashierController@login');
+		Route::post('register', 'CashierController@register');
 		Route::get('companies/list', 'CashierController@getCompanies');
 		Route::get('companies/{id}/get-cars-list', 'CashierController@getCompanyCarsList');
 		Route::get('cities/list', 'CashierController@getCities');
 		Route::get('cities/{id}/get-stations', 'CashierController@getCityStationsList');
 		Route::post('create-trip', 'CashierController@createTripByCashier');
 		Route::get('get-travels-upcoming', 'CashierController@travelUpcoming');
+		Route::get('car/{id}/get-info', 'CashierController@getCarInfo');
+		
+		# Продажа билетов
+		Route::post('tickets/get-tickets-for-today', 'CashierController@getTicketsForToday');
 	});
 
     Route::post('profile/register','UserController@register');

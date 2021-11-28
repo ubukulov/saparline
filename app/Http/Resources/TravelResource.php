@@ -28,7 +28,7 @@ class TravelResource extends JsonResource
             'destination_time' => $this->destination_time,
             'car' => Car::join('users','users.id','cars.user_id')
                 ->join('car_types','car_types.id','cars.car_type_id')
-                ->select('cars.*','users.name','car_types.name as car_type','car_types.count_places as car_type_count_places')
+                ->select('cars.*','users.name','users.phone','car_types.name as car_type','car_types.count_places as car_type_count_places')
                 ->find($this->car_id),
             'from' => Station::join('cities','cities.id','stations.city_id')
                 ->where('stations.id',$this->from_station_id)

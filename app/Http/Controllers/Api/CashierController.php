@@ -27,7 +27,7 @@ class CashierController extends Controller {
 	public function login(Request $request)
 	{
 		$rules = [
-            'username'=> 'required',
+            'email'=> 'required',
             'password'=> 'required',
         ];
 
@@ -35,9 +35,9 @@ class CashierController extends Controller {
         if ($validator->fails()) {
             return response()->json($validator->errors()->first(),400,['charset'=>'utf-8'],JSON_UNESCAPED_UNICODE);
         }
-		$username = $request->input('username');
+		$email = $request->input('email');
 		$password = $request->input('password');
-		$cashier = Cashier::where(['username' => $username])->first();
+		$cashier = Cashier::where(['email' => $email])->first();
 
 		if (!$cashier){
             return response()->json('Неверные данные',404);
@@ -50,6 +50,35 @@ class CashierController extends Controller {
 		if($cashier) {
 			return response()->json(['user' => new CashierResource($cashier)], 200);
 		}
+	}
+	
+	public function register(Request $request)
+	{
+		$rules = [
+            'first_name'=> 'required',
+            'type_id'=> 'required',
+            'city_id'=> 'required',
+            'station_id'=> 'required',
+            'company_name'=> 'required',
+            'phone'=> 'required',
+            'email'=> 'required|unique:cashiers,email',
+            'password'=> 'required',
+        ];
+
+        $validator = $this->validator($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->first(),400,['charset'=>'utf-8'],JSON_UNESCAPED_UNICODE);
+        }
+		
+		$data = $request->all();
+		$data['active'] = 0;
+		$data['password'] = bcrypt($data['password']);
+		$cashier = Cashier::create($data);
+		if ($cashier) {
+			return response()->json('success', 200);
+		}
+		
+		return response()->json('Server error. Please try later', 500);
 	}
 
 	public function getCompanies()
@@ -104,8 +133,8 @@ class CashierController extends Controller {
 			$carTravel->departure_time = $data['departure_time'];
 			$carTravel->destination_time = $data['destination_time'];
 			$carTravel->travel_id = $travel ? $travel->id : null;
-			$carTravel->from_city_id = $data['city_id1'];
-			$carTravel->to_city_id = $data['city_id2'];
+			$carTravel->from_city_id = $data['from_city_id'];
+			$carTravel->to_city_id = $data['to_city_id'];
 			$carTravel->car_id = $data['car_id'];
 			$carTravel->save();
 			
@@ -170,4 +199,18 @@ class CashierController extends Controller {
             ->get();
         return response()->json(TravelResource::collection($travels),200,['charset'=>'utf-8'],JSON_UNESCAPED_UNICODE);
     }
+	
+	public function getCarInfo($car_id)
+	{
+		$car = Car::whereId($car_id)
+					->with('car_type')
+					->first();
+		return response()->json($car);			
+	}
+	
+	public function getTicketsForToday(Request $request)
+	{
+		$data = $request->all();
+		
+	}
 }
