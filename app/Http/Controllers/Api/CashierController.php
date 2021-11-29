@@ -17,6 +17,8 @@ use App\Models\CarTravelStation;
 use App\Models\CarType;
 use App\Models\Car;
 use App\Models\CarTravelPlace;
+use App\Models\CarTravelOrder;
+use App\Models\CarTravelPlaceOrder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Http\Resources\TravelResource;
@@ -229,5 +231,70 @@ class CashierController extends Controller {
 	{
 		$car_travel = CarTravel::findOrFail($car_travel_id);
 		return response()->json($car_travel->get_all_places);
+	}
+	
+	public function ticketSelling(Request $request, $car_travel_id)
+	{
+		$data = $request->all();
+		$place_number = $data['place_number'];
+		$first_name = $data['first_name'];
+		$phone = str_replace(' ', '', $data['phone']);
+		$iin = $data['iin'];
+		
+		DB::beginTransaction();
+		
+		try {
+			$car_travel = CarTravel::findOrFail($car_travel_id);
+			
+			$car_travel_order = new CarTravelOrder();
+			$car_travel_order->car_travel_id = $car_travel->id;
+			$car_travel_order->driver_id = Car::find($car_travel->car_id)->user_id;
+			$car_travel_order->from_station_id = $car_travel->from_station_id;
+			$car_travel_order->to_station_id = $car_travel->to_station_id;
+			$car_travel_order->status = 'take';
+			$car_travel_order->save();
+			
+			
+			$car_travel_place = CarTravelPlace::where('car_travel_id', $car_travel_id)->where('number', $place_number)->first();
+			
+			if ($car_travel_place) {
+				if ($car_travel_place->status == 'take') {
+                    return response()->json("Место #$place_number уже забронирован", 400);
+
+                }
+                
+				if ($car_travel_place->status == 'in_process') {
+                    return response()->json("Место #$place_number уже забронирован", 400);
+                }
+				
+				$car_travel_place->car_travel_order_id = $car_travel_order->id;
+                $car_travel_place->status = 'take';
+                $car_travel_place->save();
+			} else {
+				return response()->json("Место не найдено", 400);
+			}
+			
+			$car_travel_place_order = new CarTravelPlaceOrder();
+			$car_travel_place_order->price = $car_travel_place->price;
+			$car_travel_place_order->car_travel_id = $car_travel_place->car_travel_id;
+			$car_travel_place_order->driver_id = $car_travel_place->driver_id;
+			$car_travel_place_order->number = $car_travel_place->number;
+			$car_travel_place_order->from_station_id = $car_travel_place->from_station_id;
+			$car_travel_place_order->to_station_id = $car_travel_place->to_station_id;
+			$car_travel_place_order->car_travel_order_id = $car_travel_order->id;
+			$car_travel_place_order->first_name = $first_name;
+			$car_travel_place_order->phone = $phone;
+			$car_travel_place_order->iin = $iin;
+			$car_travel_place_order->status = 'take';
+			$car_travel_place_order->save();
+			
+			DB::commit();
+			
+			return response()->json('Место успешно продано');
+			
+		} catch (\Exception $exception) {
+			DB::rollBack();
+			return response()->json('Server error. Please try again', 500);
+		}
 	}
 }
