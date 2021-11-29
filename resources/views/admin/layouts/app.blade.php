@@ -155,6 +155,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{route('admin.cashier.index')}}">
+                        <span>Список кассиров</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{route('admin.travel.index')}}">
                         <span>Промежуточный остоновки</span>
                     </a>

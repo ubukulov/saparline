@@ -10,11 +10,21 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class Cashier extends Authenticatable
 {
 	use Notifiable;
-	
+
     protected $fillable = [
         'email', 'password', 'city_id', 'first_name', 'last_name', 'active', 'station_id', 'company_name', 'company_id',
 		'phone', 'type_id'
     ];
 
     protected $hidden = ['created_at', 'updated_at'];
+
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
+
+    public function station()
+    {
+        return $this->belongsTo(Station::class);
+    }
 }

@@ -20,6 +20,7 @@ use App\Models\CarTravelPlace;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Http\Resources\TravelResource;
+use App\Http\Resources\TravelResourceForCashier;
 
 
 class CashierController extends Controller {
@@ -46,6 +47,10 @@ class CashierController extends Controller {
         if (!Hash::check($password, $cashier->password)){
             return response()->json('Неверные данные',400);
         }
+		
+		if ($cashier->active == 0) {
+			return response()->json('Пользователь еще не активирован', 409);
+		}
 
 		if($cashier) {
 			return response()->json(['user' => new CashierResource($cashier)], 200);
@@ -208,9 +213,21 @@ class CashierController extends Controller {
 		return response()->json($car);			
 	}
 	
-	public function getTicketsForToday(Request $request)
+	public function getTicketsForToday()
 	{
-		$data = $request->all();
-		
+		$travels = CarTravel::join('cars','car_travel.car_id','cars.id')
+            ->selectRaw('car_travel.*')
+            ->whereDate("car_travel.departure_time", Carbon::today()->toDateString())
+            ->orderBy('car_travel.id','desc')
+            ->limit(100)
+            ->get();
+			
+		return response()->json(TravelResourceForCashier::collection($travels),200,['charset'=>'utf-8'],JSON_UNESCAPED_UNICODE);
+	}
+	
+	public function getAllPlacesForRoute($car_travel_id)
+	{
+		$car_travel = CarTravel::findOrFail($car_travel_id);
+		return response()->json($car_travel->get_all_places);
 	}
 }

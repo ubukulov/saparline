@@ -116,5 +116,12 @@ Route::name('admin.')->namespace('Admin')->group(function () {
             Route::get('/{id}/edit', 'CarController@edit')->name('edit');
             Route::post('/{id}/update', 'CarController@update')->name('update');
         });
+
+        # Cashiers
+        Route::name('cashier.')->prefix('cashiers')->group(function(){
+            Route::get('/', 'CashierController@index')->name('index');
+            Route::get('/{id}/edit', 'CashierController@edit')->name('edit');
+            Route::post('/{id}/update', 'CashierController@update')->name('update');
+        });
     });
 });
