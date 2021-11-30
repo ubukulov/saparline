@@ -27,6 +27,9 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 		Route::get('car-travel/{id}/get-all-places-for-route', 'CashierController@getAllPlacesForRoute');
 		
 		Route::post('car-travel/{id}/selling', 'CashierController@ticketSelling');
+		
+		Route::get('tickets/get-sold-tickets-for-today', 'CashierController@getSoldTicketsForToday');
+		Route::get('tickets/{filter_id}/get-tickets-by-filter', 'CashierController@getTicketsByFilter');
 	});
 
     Route::post('profile/register','UserController@register');

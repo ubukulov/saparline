@@ -297,4 +297,72 @@ class CashierController extends Controller {
 			return response()->json('Server error. Please try again', 500);
 		}
 	}
+	
+	public function getSoldTicketsForToday($tomorrow = false)
+	{
+		
+					
+		if ($tomorrow) {
+			$car_travel_sold_tickes_for_today = CarTravelPlaceOrder::where(['car_travel_place_orders.status' => 'take'])
+					->selectRaw('car_travel_place_orders.*, cars.state_number, DATE_FORMAT(car_travel.departure_time, "%d.%m.%Y") as dep_date, DATE_FORMAT(car_travel.departure_time, "%H:%i") as dep_time, DATE_FORMAT(car_travel.destination_time, "%d.%m.%Y") as des_date, DATE_FORMAT(car_travel.destination_time, "%H:%i") as des_time')
+					->with('driver', 'from_station', 'to_station')
+					->join('car_travel','car_travel.id','car_travel_place_orders.car_travel_id')
+					->join('cars','car_travel.car_id','cars.id')
+					//->leftJoin('company_cars','company_cars.car_id','cars.id')
+					//->leftJoin('companies', 'companies.id', 'company_cars.company_id')
+					//->whereDate("car_travel.departure_time", '>', "CURDATE()")
+					->orderBy('car_travel.id','desc')
+					->limit(100)
+					->get();
+			//$car_travel_sold_tickes_for_today = $car_travel_sold_tickes_for_today->whereRaw("car_travel.departure_time > CURRENT_TIMESTAMP()")->get();
+		} else {
+			$car_travel_sold_tickes_for_today = CarTravelPlaceOrder::where(['car_travel_place_orders.status' => 'take'])
+					->selectRaw('car_travel_place_orders.*, cars.state_number, DATE_FORMAT(car_travel.departure_time, "%d.%m.%Y") as dep_date, DATE_FORMAT(car_travel.departure_time, "%H:%i") as dep_time, DATE_FORMAT(car_travel.destination_time, "%d.%m.%Y") as des_date, DATE_FORMAT(car_travel.destination_time, "%H:%i") as des_time')
+					->with('driver', 'from_station', 'to_station')
+					->join('car_travel','car_travel.id','car_travel_place_orders.car_travel_id')
+					->join('cars','car_travel.car_id','cars.id')
+					//->leftJoin('company_cars','company_cars.car_id','cars.id')
+					//->leftJoin('companies', 'companies.id', 'company_cars.company_id')
+					//->whereDate("car_travel.departure_time", Carbon::today()->toDateString())
+					->orderBy('car_travel.id','desc')
+					->limit(100)
+					->get();
+			//$car_travel_sold_tickes_for_today = $car_travel_sold_tickes_for_today->whereDate("car_travel.departure_time", Carbon::today()->toDateString())->get();
+		}		
+					
+		return response()->json($car_travel_sold_tickes_for_today);	
+	}
+	
+	public function getSoldTickets()
+	{
+		$car_travel_sold_tickes_for_today = CarTravelPlaceOrder::where(['car_travel_place_orders.status' => 'take'])
+					->selectRaw('car_travel_place_orders.*, cars.state_number, DATE_FORMAT(car_travel.departure_time, "%d.%m.%Y") as dep_date, DATE_FORMAT(car_travel.departure_time, "%H:%i") as dep_time, DATE_FORMAT(car_travel.destination_time, "%d.%m.%Y") as des_date, DATE_FORMAT(car_travel.destination_time, "%H:%i") as des_time')
+					->with('driver', 'from_station', 'to_station')
+					->join('car_travel','car_travel.id','car_travel_place_orders.car_travel_id')
+					->join('cars','car_travel.car_id','cars.id')
+					//->leftJoin('company_cars','company_cars.car_id','cars.id')
+					//->leftJoin('companies', 'companies.id', 'company_cars.company_id')
+					->orderBy('car_travel.id','desc')
+					->limit(100)
+					->get();
+		
+		return response()->json($car_travel_sold_tickes_for_today);		
+	}
+	
+	public function getTicketsByFilter($filter_id)
+	{
+		switch((int)$filter_id) {
+			case 0:
+				return $this->getSoldTicketsForToday();
+			break;
+			
+			case 1:
+				return $this->getSoldTicketsForToday(true);
+			break;
+			
+			case 2:
+				return $this->getSoldTickets();
+			break;
+		}
+	}
 }

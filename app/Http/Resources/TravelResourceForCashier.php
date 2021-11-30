@@ -26,6 +26,7 @@ class TravelResourceForCashier extends JsonResource
         return [
             'id' => $this->id,
             'departure_time' => Carbon::parse($this->departure_time)->format('H:i'),
+            'departure_date' => Carbon::parse($this->departure_time)->format('d.m.Y'),
             'destination_time' => $this->destination_time,
             'car' => Car::join('users','users.id','cars.user_id')
                 ->join('car_types','car_types.id','cars.car_type_id')
