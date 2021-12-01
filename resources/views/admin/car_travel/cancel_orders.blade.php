@@ -24,6 +24,7 @@
                                 <th>время прибытия</th>
                                 <th>Водитель (Имя)</th>
                                 <th>Водитель (Номер)</th>
+                                <th>Причина возврата</th>
                                 <th>Нос номер авто</th>
                             </tr>
                             </thead>
@@ -53,8 +54,11 @@
                                     <td>{{$travel->destination_time}}</td>
                                     <td>{{$travel->driver_name}}</td>
                                     <td>{{$travel->driver_phone}}</td>
+									<td>
+									{{ $travel->reason_for_return }}
+									</td>
                                     <td>{{$travel->car_state_number}}</td>
-
+									
 
                                     <td><a class="btn btn-primary" href="{{route('admin.car_travel.orderCancel',$travel->id)}}">Вернул</a></td>
                                 </tr>

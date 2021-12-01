@@ -227,6 +227,19 @@ class CashierController extends Controller {
 		return response()->json(TravelResourceForCashier::collection($travels),200,['charset'=>'utf-8'],JSON_UNESCAPED_UNICODE);
 	}
 	
+	public function getTicketsForNextDays()
+	{
+		$today = date('Y-m-d');
+		$travels = CarTravel::join('cars','car_travel.car_id','cars.id')
+            ->selectRaw('car_travel.*')
+			->whereDate('car_travel.departure_time', '>', $today)
+            ->orderBy('car_travel.id','desc')
+            ->limit(100)
+            ->get();
+			
+		return response()->json(TravelResourceForCashier::collection($travels),200,['charset'=>'utf-8'],JSON_UNESCAPED_UNICODE);
+	}
+	
 	public function getAllPlacesForRoute($car_travel_id)
 	{
 		$car_travel = CarTravel::findOrFail($car_travel_id);
@@ -240,6 +253,14 @@ class CashierController extends Controller {
 		$first_name = $data['first_name'];
 		$phone = str_replace(' ', '', $data['phone']);
 		$iin = $data['iin'];
+		
+		if ($this->checkingForDoubleIin($car_travel_id, $iin)) {
+			return response()->json("С таким $iin уже продано билет. Укажите другой ИИН", 409);
+		}
+		
+		if ($this->checkingForPhone($car_travel_id, $phone)) {
+			return response()->json("В одном поездке может только 4 раза повторяется телефон. Укажите другой", 409);
+		}
 		
 		DB::beginTransaction();
 		
@@ -299,9 +320,7 @@ class CashierController extends Controller {
 	}
 	
 	public function getSoldTicketsForToday($tomorrow = false)
-	{
-		
-					
+	{	
 		if ($tomorrow) {
 			$car_travel_sold_tickes_for_today = CarTravelPlaceOrder::where(['car_travel_place_orders.status' => 'take'])
 					->selectRaw('car_travel_place_orders.*, cars.state_number, DATE_FORMAT(car_travel.departure_time, "%d.%m.%Y") as dep_date, DATE_FORMAT(car_travel.departure_time, "%H:%i") as dep_time, DATE_FORMAT(car_travel.destination_time, "%d.%m.%Y") as des_date, DATE_FORMAT(car_travel.destination_time, "%H:%i") as des_time')
@@ -310,7 +329,7 @@ class CashierController extends Controller {
 					->join('cars','car_travel.car_id','cars.id')
 					//->leftJoin('company_cars','company_cars.car_id','cars.id')
 					//->leftJoin('companies', 'companies.id', 'company_cars.company_id')
-					//->whereDate("car_travel.departure_time", '>', "CURDATE()")
+					->whereDate('car_travel.departure_time', '>', date('Y-m-d'))
 					->orderBy('car_travel.id','desc')
 					->limit(100)
 					->get();
@@ -323,7 +342,7 @@ class CashierController extends Controller {
 					->join('cars','car_travel.car_id','cars.id')
 					//->leftJoin('company_cars','company_cars.car_id','cars.id')
 					//->leftJoin('companies', 'companies.id', 'company_cars.company_id')
-					//->whereDate("car_travel.departure_time", Carbon::today()->toDateString())
+					->whereDate("car_travel.departure_time", Carbon::today()->toDateString())
 					->orderBy('car_travel.id','desc')
 					->limit(100)
 					->get();
@@ -364,5 +383,48 @@ class CashierController extends Controller {
 				return $this->getSoldTickets();
 			break;
 		}
+	}
+	
+	public function checkingForDoubleIin($car_travel_id, $iin)
+	{
+		$result = CarTravelPlaceOrder::where(['car_travel_id' => $car_travel_id, 'iin' => $iin])->first();
+		return ($result) ? true : false;
+	}
+	
+	public function checkingForPhone($car_travel_id, $phone)
+	{
+		$result = CarTravelPlaceOrder::where(['car_travel_id' => $car_travel_id, 'phone' => $phone])->get();
+		return (count($result) >= 4) ? true : false;
+	}
+	
+	public function returnSoldTickets(Request $request)
+	{
+		$data = $request->all();
+		$car_travel_place_order = CarTravelPlaceOrder::where(['car_travel_id' => $data['car_travel_id'], 'number' => $data['place_number']])->first();
+		if($car_travel_place_order) {
+			$car_travel_place_order->status = 'cancel';
+			$car_travel_place_order->reason_for_return = $data['reason_for_return'];
+			$car_travel_place_order->save();
+			
+			return response()->json("Заявка на возврат принять!", 200);
+		} else {
+			return response()->json("Не найдено место для возврата", 409);
+		}
+	}
+	
+	public function getReturnTickets()
+	{
+		$car_travel_return_tickes_for_today = CarTravelPlaceOrder::where(['car_travel_place_orders.status' => 'cancel'])
+					->selectRaw('car_travel_place_orders.*, cars.state_number, DATE_FORMAT(car_travel.departure_time, "%d.%m.%Y") as dep_date, DATE_FORMAT(car_travel.departure_time, "%H:%i") as dep_time, DATE_FORMAT(car_travel.destination_time, "%d.%m.%Y") as des_date, DATE_FORMAT(car_travel.destination_time, "%H:%i") as des_time')
+					->with('driver', 'from_station', 'to_station')
+					->join('car_travel','car_travel.id','car_travel_place_orders.car_travel_id')
+					->join('cars','car_travel.car_id','cars.id')
+					//->leftJoin('company_cars','company_cars.car_id','cars.id')
+					//->leftJoin('companies', 'companies.id', 'company_cars.company_id')
+					->whereDate('car_travel.departure_time', '>=', date('Y-m-d'))
+					->orderBy('car_travel.id','desc')
+					->limit(100)
+					->get();
+		return response()->json($car_travel_return_tickes_for_today);		
 	}
 }

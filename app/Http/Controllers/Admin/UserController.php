@@ -348,8 +348,9 @@ class UserController extends Controller
             ->join('cars','car_travel.car_id','cars.id')
             ->join('car_types','cars.car_type_id','car_types.id')
             ->join('users as driver','driver.id','cars.user_id')
-            ->join('users as passenger','passenger.id','car_travel_place_orders.passenger_id')
+            ->leftJoin('users as passenger','passenger.id','car_travel_place_orders.passenger_id')
             ->where('status',"cancel")
+			->whereDate('car_travel.departure_time', '>=', date('Y-m-d'))
             ->select(
                 'car_travel_place_orders.id',
                 'car_travel_place_orders.number',
@@ -367,7 +368,8 @@ class UserController extends Controller
                 'driver.name as driver_name',
                 'driver.phone as driver_phone',
                 'passenger.name as passenger_name',
-                'passenger.phone as passenger_phone'
+                'passenger.phone as passenger_phone',
+                'car_travel_place_orders.reason_for_return',
             )
             ->orderBy('booking_time','desc')
             ->paginate(15);
@@ -431,30 +433,42 @@ class UserController extends Controller
     }
     public function orderCancel($id){
         $order = CarTravelPlaceOrder::findOrFail($id);
-
-
-        Firebase::sendMultiple(User::where('id',$order->passenger_id)
-            ->where('push',1)
-            ->select('device_token')
-            ->pluck('device_token')
-            ->toArray(),[
-            'title' => 'Saparline',
-            'body' => "Вы вернули билет!",
-            'type' => 'cancel',
-            'user_id' => $order->passenger_id,
-        ]);
-
-
+		
+		if (!is_null($order->passenger_id)) {
+			Firebase::sendMultiple(User::where('id',$order->passenger_id)
+				->where('push',1)
+				->select('device_token')
+				->pluck('device_token')
+				->toArray(),[
+				'title' => 'Saparline',
+				'body' => "Вы вернули билет!",
+				'type' => 'cancel',
+				'user_id' => $order->passenger_id,
+			]);
+		}
 
         $order->status = 'cancel';
         $order->save();
 
+		/*
         $order = CarTravelPlace::findOrFail($id);
 
         $order->status = 'free';
         $order->passenger_id = null;
         $order->car_travel_order_id = null;
-        $order->save();
+        $order->save();*/
+		
+		$car_travel_place = CarTravelPlace::where(['car_travel_id' => $order->car_travel_id, 'car_travel_order_id' => $order->car_travel_order_id, 'number' => $order->number])->first();
+		if ($car_travel_place) {
+			$car_travel_place->status = 'free';
+			$car_travel_place->passenger_id = null;
+			$car_travel_place->car_travel_order_id = null;
+			$car_travel_place->save();
+			
+			CarTravelPlaceOrder::destroy($id);
+		} else {
+			abort(404);
+		}
 
 
         return redirect()->back();
