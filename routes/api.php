@@ -21,20 +21,20 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 		Route::post('create-trip', 'CashierController@createTripByCashier');
 		Route::get('get-travels-upcoming', 'CashierController@travelUpcoming');
 		Route::get('car/{id}/get-info', 'CashierController@getCarInfo');
-		
+
 		# Продажа билетов
 		Route::get('tickets/get-tickets-for-today', 'CashierController@getTicketsForToday');
 		Route::get('tickets/get-tickets-for-next-days', 'CashierController@getTicketsForNextDays');
 		Route::get('car-travel/{id}/get-all-places-for-route', 'CashierController@getAllPlacesForRoute');
-		
+
 		Route::post('car-travel/{id}/selling', 'CashierController@ticketSelling');
-		
+
 		Route::get('tickets/get-sold-tickets-for-today', 'CashierController@getSoldTicketsForToday');
 		Route::get('tickets/{filter_id}/get-tickets-by-filter', 'CashierController@getTicketsByFilter');
-		
+
 		Route::post('tickets/return-sold-tickets', 'CashierController@returnSoldTickets');
 		Route::get('tickets/get-return-tickets', 'CashierController@getReturnTickets');
-		
+
 		# Плановые поездки
 		Route::post('intercity/get-travels-by-filter', 'CashierController@getTravelsByFilter');
 		Route::get('car-travel/{id}/get-information-about-car-travel', 'CashierController@getInformationAboutCarTravel');
@@ -59,6 +59,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
     Route::get('carTypes','UserController@carTypes');
     Route::get('travel-stations','UserController@travelStations');
     Route::get('travel-stations','UserController@travelStations');
+    Route::get('companies', 'CashierController@getCompanies');
 
 
     Route::middleware(['apiCheck'])->group(function () {

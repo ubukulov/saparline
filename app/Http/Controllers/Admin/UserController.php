@@ -264,9 +264,11 @@ class UserController extends Controller
 
     public function destroy($id)
     {
-        $l = User::findOrFail($id);
+        /*$l = User::findOrFail($id);
         $l->delete();
-        return redirect()->back();
+        return redirect()->back();*/
+        $user = User::findOrFail($id);
+
     }
 
 
@@ -433,7 +435,7 @@ class UserController extends Controller
     }
     public function orderCancel($id){
         $order = CarTravelPlaceOrder::findOrFail($id);
-		
+
 		if (!is_null($order->passenger_id)) {
 			Firebase::sendMultiple(User::where('id',$order->passenger_id)
 				->where('push',1)
@@ -457,14 +459,14 @@ class UserController extends Controller
         $order->passenger_id = null;
         $order->car_travel_order_id = null;
         $order->save();*/
-		
+
 		$car_travel_place = CarTravelPlace::where(['car_travel_id' => $order->car_travel_id, 'car_travel_order_id' => $order->car_travel_order_id, 'number' => $order->number])->first();
 		if ($car_travel_place) {
 			$car_travel_place->status = 'free';
 			$car_travel_place->passenger_id = null;
 			$car_travel_place->car_travel_order_id = null;
 			$car_travel_place->save();
-			
+
 			CarTravelPlaceOrder::destroy($id);
 		} else {
 			abort(404);
@@ -502,5 +504,60 @@ class UserController extends Controller
             ->paginate(20);
 
         return response()->view('admin.calculate',$data);
+    }
+
+    public function confirmationLodger()
+    {
+        $lodgers = User::where(['role' => 'lodger', 'confirmation' => 'waiting'])
+            ->with('company')
+            ->orderBy('users.id','desc')
+            ->paginate(50);
+        return response()->view('admin.user.confirmationLodger', compact('lodgers'));
+    }
+
+    public function confirmLodger($id)
+    {
+        $user = User::findOrFail($id);
+        $user->confirmation = 'confirm';
+        $user->save();
+
+        Firebase::sendMultiple(User::where('id',$user->id)
+            ->where('push',1)
+            ->select('device_token')
+            ->pluck('device_token')
+            ->toArray(),[
+            'title' => 'Saparline',
+            'body' => "ваши данные подтверждены",
+            'type' => 'driver_confirmation',
+            'user_id' => $user->id,
+        ]);
+
+
+        return redirect()->back();
+    }
+
+    public function rejectLodger($id)
+    {
+        $user = User::findOrFail($id);
+        $user->confirmation = 'reject';
+        $user->save();
+
+        Firebase::sendMultiple(User::where('id',$id)->select('device_token')->pluck('device_token')->toArray(),[
+            'title' => 'Saparline',
+            'body' => "ваши данные отклонены",
+            'type' => 'driver_reject',
+            'user_id' => $id,
+        ]);
+
+
+        return redirect()->back();
+    }
+
+    public function lodgers()
+    {
+        $lodgers = User::where(['role' => 'lodger', 'confirmation' => 'confirm'])
+            ->orderBy('users.id','desc')
+            ->paginate(50);
+        return response()->view('admin.user.lodgers', compact('lodgers'));
     }
 }

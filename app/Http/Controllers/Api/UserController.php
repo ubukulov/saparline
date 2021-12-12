@@ -35,13 +35,13 @@ class UserController extends Controller
         $rules = [
             'phone' => 'required|unique:users,phone|size:10',
             'password' => 'required',
-            'role' => 'in:passenger,driver',
+            'role' => 'in:passenger,driver,lodger',
 
         ];
         $messages = [
             'phone.required' => 'Введите телефон номер',
             'password.required' => 'Введите пароль',
-            'phone.unique' => 'Телеофон номер уже занят',
+            'phone.unique' => 'Телефон номер уже занят',
         ];
         $validator = $this->validator($request->all(), $rules, $messages);
         if ($validator->fails()) {
@@ -100,6 +100,7 @@ class UserController extends Controller
         $user->role = $sms->role;
         $user->token = Str::random(30);
         $user->device_token = $request['device_token'];
+        $user->confirmation = 'waiting';
         $user->save();
 
         return response()->json(['token' => $user->token, 'user' => new UserResource($user)], 200);
@@ -107,7 +108,8 @@ class UserController extends Controller
 
     function confirmation(Request $request)
     {
-
+        $data = $request->all();
+        $company_id = (isset($data['company_id'])) ? $data['company_id'] : null;
         $user = $request['user'];
 
         if ($user->confirmation == 'waiting') {
@@ -127,7 +129,11 @@ class UserController extends Controller
                 'bank_card' => 'unique:users,bank_card',
                 'card_fullname' => 'unique:users,card_fullname'
             ];
-        } else {
+        } elseif($user->role == 'lodger'){
+			$rules = [
+                //
+            ];
+		} else {
             $rules = [
                 'name' => 'required',
                 'avatar' => 'image',
@@ -163,6 +169,7 @@ class UserController extends Controller
         $user->avatar = $this->uploadFile($request['avatar'], 'images/avatars');
         $user->bank_card = $request['bank_card'];
         $user->card_fullname = $request['card_fullname'];
+        $user->company_id = $company_id;
 
         if ($user->role == 'driver') {
             $user->passport_image = $this->uploadFile($request['passport_image'], 'images/passport');
@@ -432,7 +439,7 @@ class UserController extends Controller
         $messages = [
             'phone.required' => 'Введите телефон номер',
             'password.required' => 'Введите пароль',
-            'phone.unique' => 'Телеофон номер уже занят',
+            'phone.unique' => 'Телефон номер уже занят',
         ];
         $validator = $this->validator($request->all(), $rules, $messages);
         if ($validator->fails()) {
@@ -1279,7 +1286,7 @@ class UserController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors()->first(), 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
-		
+
 		//$car = Car::findOrFail($request['carId']);
 		//$user_id = $car->user_id;
 

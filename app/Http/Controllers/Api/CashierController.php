@@ -438,7 +438,8 @@ class CashierController extends Controller {
 		
 		if ($filter_id == 0) {
 			$travels = CarTravel::join('cars','car_travel.car_id','cars.id')
-			->whereDate('car_travel.destination_time', Carbon::today()->toDateString())
+			//->whereDate('car_travel.destination_time', Carbon::today()->toDateString())
+			->whereDate('car_travel.departure_time', '=', date('Y-m-d'))
 			->where(['from_city_id' => $from_city_id, 'to_city_id' => $to_city_id])
             ->orderBy('car_travel.id','desc')
             ->select('car_travel.*')

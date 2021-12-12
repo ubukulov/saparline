@@ -109,6 +109,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{route('admin.user.lodgers')}}">
+                        <span>Посадчики</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{route('admin.car_travel.orders')}}">
                         <span>Новые билеты</span>
                     </a>
@@ -121,6 +126,11 @@
                 <li>
                     <a href="{{route('admin.user.confirmation')}}">
                         <span>Новые водители</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{route('admin.user.confirmationLodger')}}">
+                        <span>Новые посадчики</span>
                     </a>
                 </li>
 

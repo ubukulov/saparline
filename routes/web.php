@@ -55,7 +55,11 @@ Route::name('admin.')->namespace('Admin')->group(function () {
             Route::get('drivers/newCar/confirm/{id}', 'UserController@newCarConfirm')->name('newCar.confirm');
             Route::get('drivers/newCar/reject/{id}', 'UserController@newCarReject')->name('newCar.reject');
 
-
+            # Lodgers
+            Route::get('lodgers', 'UserController@lodgers')->name('lodgers');
+            Route::get('lodgers/confirmation', 'UserController@confirmationLodger')->name('confirmationLodger');
+            Route::get('lodgers/confirmation/{id}/confirm', 'UserController@confirmLodger')->name('confirm.Lodger');
+            Route::get('lodgers/confirmation/{id}/reject', 'UserController@rejectLodger')->name('reject.Lodger');
         });
 
 

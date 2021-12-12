@@ -17,4 +17,9 @@ class User extends Model
     {
         return $this->hasMany(Car::class)->where(['is_confirmed' => 0]);
     }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 }
