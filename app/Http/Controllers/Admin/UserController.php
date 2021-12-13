@@ -178,6 +178,11 @@ class UserController extends Controller
 
         $user = $car->user;
 
+        if ($user->confirmation == 'waiting') {
+            $user->confirmation = 'confirm';
+            $user->save();
+        }
+
         Firebase::sendMultiple(User::where('id',$user->id)
             ->where('push',1)
             ->select('device_token')

@@ -27,7 +27,13 @@
                                     <td>{{$lodger->id}}</td>
                                     <td>{{$lodger->name}}</td>
                                     <td>{{$lodger->phone}}</td>
-                                    <td>{{$lodger->company->title}}</td>
+                                    <td>
+                                        @if($lodger->company)
+                                            {{ $lodger->company->title }}
+                                        @else
+
+                                        @endif
+                                    </td>
                                     <td>{{$lodger->created_at}}</td>
                                     <td>
                                         <a href="{{route('admin.user.confirm.Lodger', ['id' => $lodger->id])}}" onclick="return confirm('Вы уверены?')" class="waves-effect btn btn-info"><i class="material-icons">add_circle</i></a>
