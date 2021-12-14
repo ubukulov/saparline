@@ -98,5 +98,16 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
         Route::get('call', 'UserController@call');
         Route::get('order/take/{id}', 'UserController@orderTake');
+
+
+    });
+
+    # Lodgers Api
+    Route::group(['prefix' => 'lodger'], function(){
+        Route::get('company/{company_id}/get-cars-list', 'LodgerController@getCarsList');
+        Route::post('fix-selected-cars-for-me', 'LodgerController@fixSelectedCarsForMe');
+        Route::get('{user_id}/get-selected-cars-list', 'LodgerController@getSelectedCarsList');
+        Route::get('car-travel/{car_travel_id}/get-all-places-for-route', 'LodgerController@getAllPlacesForRoute');
+        Route::post('car-travel/{car_travel_id}/selling', 'LodgerController@ticketSelling');
     });
 });

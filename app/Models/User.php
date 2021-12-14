@@ -22,4 +22,9 @@ class User extends Model
     {
         return $this->belongsTo(Company::class);
     }
+
+    public function lodger_cars()
+    {
+        return $this->belongsToMany(Car::class, 'lodger_cars');
+    }
 }

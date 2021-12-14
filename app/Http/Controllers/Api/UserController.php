@@ -14,6 +14,7 @@ use App\Models\CarTravelPlaceOrder;
 use App\Models\CarTravelStation;
 use App\Models\CarType;
 use App\Models\City;
+use App\Models\Company;
 use App\Models\Feedback;
 use App\Models\Setting;
 use App\Models\Station;
@@ -179,11 +180,11 @@ class UserController extends Controller
             $user->bank_card = $request['bank_card'];
             $user->card_fullname = $request['card_fullname'];
         }
-		
+
 		if ($user->role == 'lodger'){
 			$user->confirmation = 'waiting';
 		}
-		
+
         $user->save();
 
         if ($user->role == 'driver') {
@@ -1640,7 +1641,5 @@ class UserController extends Controller
         return response()->json('success', 200, ['charset' => 'utf-8'],
             JSON_UNESCAPED_UNICODE);
     }
-
-
 }
 

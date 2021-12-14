@@ -18,6 +18,7 @@ class Company extends Model
 
     public function cars()
     {
-        return $this->hasMany(CompanyCar::class);
+        //return $this->hasMany(CompanyCar::class);
+        return $this->belongsToMany(Car::class, 'company_cars');
     }
 }
