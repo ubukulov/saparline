@@ -127,5 +127,7 @@ Route::name('admin.')->namespace('Admin')->group(function () {
             Route::get('/{id}/edit', 'CashierController@edit')->name('edit');
             Route::post('/{id}/update', 'CashierController@update')->name('update');
         });
+
+        //Route::get('/firebase/send', 'CashierController@firebase');
     });
 });

@@ -100,7 +100,6 @@ class UserController extends Controller
         $user->role = $sms->role;
         $user->token = Str::random(30);
         $user->device_token = $request['device_token'];
-        $user->confirmation = 'waiting';
         $user->save();
 
         return response()->json(['token' => $user->token, 'user' => new UserResource($user)], 200);
@@ -180,6 +179,11 @@ class UserController extends Controller
             $user->bank_card = $request['bank_card'];
             $user->card_fullname = $request['card_fullname'];
         }
+		
+		if ($user->role == 'lodger'){
+			$user->confirmation = 'waiting';
+		}
+		
         $user->save();
 
         if ($user->role == 'driver') {

@@ -7,6 +7,8 @@ use App\Models\Cashier;
 use App\Models\City;
 use App\Models\Company;
 use App\Models\Station;
+use App\Models\User;
+use App\Packages\Firebase;
 use Illuminate\Http\Request;
 
 class CashierController extends Controller
@@ -48,5 +50,23 @@ class CashierController extends Controller
         $cashier->update($data);
 
         return redirect()->route('admin.cashier.index');
+    }
+
+    public function firebase()
+    {
+        /*$users = User::whereRaw('id > 5426 AND id < 5468')->whereRole('passenger')->get();
+        $ids = [5410];
+        foreach($users as $user) {
+            $ids[] = $user->id;
+        }
+
+        $message = "SaparLine-ды қайта ашып қолдансаңыз болады. Келтірілген қолайлық үшін, кешірім сұраймыз.";
+        $message2 = "Егерде сұрақтар болған жағдайда, +7707 190 90 09 хабарлассаңыз болады.";
+        Firebase::sendMultiple(User::whereIn('id', [$ids])
+            ->select('device_token')->pluck('device_token')->toArray('device_token'), [
+            'title' => 'Saparline',
+            'body' => $message2,
+            'type' => 'place_take',
+        ]);*/
     }
 }
