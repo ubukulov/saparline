@@ -14,10 +14,8 @@ class CreateTableLodgerCars extends Migration
     public function up()
     {
         Schema::create('lodger_cars', function (Blueprint $table) {
-            $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('car_id');
-            $table->timestamps();
 
             $table->foreign('user_id')
                 ->references('id')

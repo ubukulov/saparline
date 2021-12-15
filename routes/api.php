@@ -109,5 +109,6 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         Route::get('{user_id}/get-selected-cars-list', 'LodgerController@getSelectedCarsList');
         Route::get('car-travel/{car_travel_id}/get-all-places-for-route', 'LodgerController@getAllPlacesForRoute');
         Route::post('car-travel/{car_travel_id}/selling', 'LodgerController@ticketSelling');
+        Route::get('car-travel/{car_travel_id}/get-all-sold-places-for-route', 'LodgerController@getAllSoldPlacesForRoute');
     });
 });

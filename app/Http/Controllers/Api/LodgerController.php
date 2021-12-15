@@ -28,8 +28,10 @@ class LodgerController extends Controller
     {
         $data = $request->all();
         $user = User::findOrFail($data['user_id']);
+
+        $user->lodger_cars()->detach();
         foreach($data['cars'] as $car_id){
-            $user->lodger_cars->attach($user->id, ['car_id' => $car_id]);
+            $user->lodger_cars()->attach($user->id, ['car_id' => $car_id]);
         }
 
         return response()->json('Cars successfully added');
@@ -41,10 +43,18 @@ class LodgerController extends Controller
         return response()->json($user->lodger_cars);
     }
 
+    // Метод возвращает все место маршрута
     public function getAllPlacesForRoute($car_travel_id)
     {
         $car_travel = CarTravel::findOrFail($car_travel_id);
         return response()->json($car_travel->get_all_places);
+    }
+
+    // Метод возвращает только проданное место
+    public function getAllSoldPlacesForRoute($car_travel_id)
+    {
+        $car_travel = CarTravel::findOrFail($car_travel_id);
+        return response()->json($car_travel->get_all_places_orders);
     }
 
     public function ticketSelling(Request $request, $car_travel_id)

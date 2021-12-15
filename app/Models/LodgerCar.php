@@ -28,11 +28,4 @@ class LodgerCar extends Pivot
     {
         return $this->belongsTo(Car::class);
     }
-
-    public static function add($user_id, $car_id)
-    {
-        LodgerCar::create([
-            'user_id' => $user_id, 'car_id' => $car_id
-        ]);
-    }
 }
