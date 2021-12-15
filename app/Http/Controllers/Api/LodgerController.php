@@ -27,6 +27,22 @@ class LodgerController extends Controller
     public function fixSelectedCarsForMe(Request $request)
     {
         $data = $request->all();
+
+        $rules = [
+            "user_id" => 'required|exists:users,id',
+            "cars" => 'required|array'
+        ];
+
+        $messages = [
+            'required' => 'Параметр :attribute обязательно',
+            'array'    => 'Параметр :attribute должно быть массимом'
+        ];
+
+        $validator = $this->validator($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->first(), 400);
+        }
+
         $user = User::findOrFail($data['user_id']);
 
         $user->lodger_cars()->detach();
@@ -59,6 +75,26 @@ class LodgerController extends Controller
 
     public function ticketSelling(Request $request, $car_travel_id)
     {
+        $rules = [
+            "user_id"       => 'required|exists:users,id',
+            "place_number"  => 'required',
+            "first_name"    => 'required',
+            "phone"         => 'required',
+            "iin"           => 'required|min:12|max:12'
+        ];
+
+        $messages = [
+            'required' => 'Параметр :attribute обязательно',
+            'array'    => 'Параметр :attribute должно быть массимом',
+            'min'      => 'Параметр :attribute должен состоят из 12 цифров',
+            'max'      => 'Параметр :attribute должен состоят из 12 цифров',
+        ];
+
+        $validator = $this->validator($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->first(), 400);
+        }
+
         $data = $request->all();
         $user_id = $data['user_id'];
         $place_number = $data['place_number'];
