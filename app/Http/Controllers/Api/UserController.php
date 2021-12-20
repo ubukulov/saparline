@@ -1471,11 +1471,16 @@ class UserController extends Controller
     //Driver , Список транспортов
     function cars(Request $request)
     {
-        $cars = Car::where('user_id', $request['user']->id)
-            ->join('users', 'users.id', 'cars.user_id')
-            ->select('cars.*', 'users.name', 'users.surname'/*, 'users.phone'*/)
-            ->limit(100)
-            ->get();
+        $user = User::findOrFail($request['user']->id);
+        if ($user->role == 'lodger') {
+            $cars = $user->lodger_cars;
+        } else {
+            $cars = Car::where('user_id', $user->id)
+                ->join('users', 'users.id', 'cars.user_id')
+                ->select('cars.*', 'users.name', 'users.surname'/*, 'users.phone'*/)
+                ->limit(100)
+                ->get();
+        }
         return response()->json($cars, 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
     }
 
