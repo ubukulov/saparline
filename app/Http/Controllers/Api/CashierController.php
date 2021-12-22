@@ -479,12 +479,13 @@ class CashierController extends Controller {
 	public function getSoldTicketsForCurrentRoute($car_travel_id)
 	{
 		$car_travel_sold_tickes = CarTravelPlace::where(['car_travel_places.status' => 'take'])
-					->selectRaw('car_travel_places.*, cars.state_number, DATE_FORMAT(car_travel.departure_time, "%d.%m.%Y") as dep_date, DATE_FORMAT(car_travel.departure_time, "%H:%i") as dep_time, DATE_FORMAT(car_travel.destination_time, "%d.%m.%Y") as des_date, DATE_FORMAT(car_travel.destination_time, "%H:%i") as des_time')
+					->selectRaw('car_travel_places.*, car_travel_place_orders.first_name,car_travel_place_orders.phone,car_travel_place_orders.iin, cars.state_number, DATE_FORMAT(car_travel.departure_time, "%d.%m.%Y") as dep_date, DATE_FORMAT(car_travel.departure_time, "%H:%i") as dep_time, DATE_FORMAT(car_travel.destination_time, "%d.%m.%Y") as des_date, DATE_FORMAT(car_travel.destination_time, "%H:%i") as des_time')
 					->with('driver', 'from_station', 'to_station')
 					->join('car_travel','car_travel.id','car_travel_places.car_travel_id')
 					->join('cars','car_travel.car_id','cars.id')
 					//->leftJoin('company_cars','company_cars.car_id','cars.id')
 					//->leftJoin('companies', 'companies.id', 'company_cars.company_id')
+					->leftJoin('car_travel_place_orders', 'car_travel_place_orders.car_travel_id', 'car_travel.id')
 					->where(["car_travel.id" => $car_travel_id])
 					->orderBy('car_travel.id','desc')
 					->get();
