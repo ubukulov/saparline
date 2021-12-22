@@ -965,9 +965,10 @@ class UserController extends Controller
             ->join('cars', 'car_travel.car_id', 'cars.id')
             ->join('car_types', 'cars.car_type_id', 'car_types.id')
             ->join('users', 'users.id', 'car_travel_places.driver_id')
-            ->where('passenger_id', $request['user']->id)
+            ->leftJoin('car_travel_place_orders', 'car_travel_place_orders.car_travel_id', 'car_travel.id')
+            ->where('car_travel_places.passenger_id', $request['user']->id)
             ->whereRaw("car_travel.destination_time > CURRENT_TIMESTAMP()")
-            ->whereIn('status', ['take', 'in_process'])
+            ->whereIn('car_travel_places.status', ['take', 'in_process'])
             ->select(
                 'car_travel_places.id',
                 'car_travel_places.number',
@@ -985,7 +986,9 @@ class UserController extends Controller
                 'users.phone as phone_number',
                 'users.bank_card',
                 'users.card_fullname',
-                'status'
+                'car_travel_place_orders.first_name',
+                'car_travel_place_orders.phone',
+                'car_travel_place_orders.iin'
             )
             ->orderBy('car_travel_places.id', 'desc')
             ->get();
@@ -1035,6 +1038,10 @@ class UserController extends Controller
             'travel_id' => 'required|exists:car_travel,id',
             'places' => 'required|array|between:1,4',
         ];
+        $first_name = (isset($request['first_name'])) ? $request['first_name'] : null;
+        $phone = (isset($request['phone'])) ? $request['phone'] : null;
+        $iin = (isset($request['iin'])) ? $request['iin'] : null;
+
         $messages = [];
         $validator = $this->validator($request->all(), $rules, $messages);
         if ($validator->fails()) {
@@ -1085,6 +1092,9 @@ class UserController extends Controller
                 $placeOrder->passenger_id = $request['user']->id;
                 $placeOrder->status = 'in_process';
                 $placeOrder->booking_time = Carbon::now();
+                $placeOrder->first_name = $first_name;
+                $placeOrder->phone = $phone;
+                $placeOrder->iin = $iin;
                 $placeOrder->save();
 
                 $placeNumber = $place->number;
@@ -1187,6 +1197,11 @@ class UserController extends Controller
         $messages = [
 
         ];
+
+        $first_name = (isset($request['first_name'])) ? $request['first_name'] : null;
+        $phone = (isset($request['phone'])) ? $request['phone'] : null;
+        $iin = (isset($request['iin'])) ? $request['iin'] : null;
+
         $validator = $this->validator($request->all(), $rules, $messages);
         if ($validator->fails()) {
             return response()->json($validator->errors()->first(), 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
@@ -1210,7 +1225,23 @@ class UserController extends Controller
         if ($request['number']) {
             $place->number = $request['number'];
         }
+
         $place->save();
+
+        $placeOrder = new CarTravelPlaceOrder();
+        $placeOrder->price = $place->price;
+        $placeOrder->car_travel_id = $place->car_travel_id;
+        $placeOrder->driver_id = $place->driver_id;
+        $placeOrder->number = $place->number;
+        $placeOrder->from_station_id = $place->from_station_id;
+        $placeOrder->to_station_id = $place->to_station_id;
+        $placeOrder->passenger_id = $place->passenger_id;
+        $placeOrder->status = 'take';
+        $placeOrder->booking_time = Carbon::now();
+        $placeOrder->first_name = $first_name;
+        $placeOrder->phone = $phone;
+        $placeOrder->iin = $iin;
+        $placeOrder->save();
 
         return response()->json('success', 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
 
