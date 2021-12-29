@@ -68,6 +68,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         Route::post('profile/edit','UserController@edit');
         Route::post('profile/role/passenger','UserController@rolePassenger');
         Route::post('profile/role/driver','UserController@roleDriver');
+        Route::post('profile/role/lodger','UserController@roleLodger');
         Route::get('profile/carTravels','UserController@carTravels');
         Route::get('profile/cars','UserController@cars');
 

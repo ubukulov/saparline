@@ -436,6 +436,14 @@ class UserController extends Controller
         return response()->json("Вы теперь пассажир", 200);
     }
 
+    public function roleLodger(Request $request)
+    {
+        $user = $request['user'];
+        $user->role = 'lodger';
+        $user->save();
+        return response()->json("Вы теперь посадчик", 200);
+    }
+
     function passwordResetSend(Request $request)
     {
         $rules = [
