@@ -513,7 +513,7 @@ class UserController extends Controller
 
     public function confirmationLodger()
     {
-        $lodgers = User::where(['role' => 'lodger'])->whereNull('confirmation')
+        $lodgers = User::whereRaw('role="lodger" AND (confirmation is null OR confirmation="waiting")')
             ->with('company')
             ->orderBy('users.id','desc')
             ->paginate(50);
