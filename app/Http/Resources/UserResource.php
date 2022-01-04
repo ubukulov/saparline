@@ -29,6 +29,7 @@ class UserResource extends JsonResource
             'passport_image' => $this->passport_image,
             'identity_image' => $this->identity_image,
             'confirmation' => $this->confirmation,
+            'company_id' => $this->company_id,
             'car' => Car::join('car_types','car_types.id','car_type_id')->where('user_id',$this->id)
                 ->select('cars.*','car_types.name as type','car_types.count_places')
                 ->first()

@@ -87,6 +87,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         Route::get('order-histories','UserController@orderHistories');
 
         Route::post('travel/place/reservation','UserController@placeReservation');
+        Route::post('travel/place/reservation2','UserController@placeReservation2');
         Route::post('travel/place/cancel','UserController@placeCancel');
         Route::post('travel/place/edit','UserController@travelPlaceEdit');
 
@@ -108,6 +109,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
             Route::get('car-travel/{car_travel_id}/get-all-places-for-route', 'LodgerController@getAllPlacesForRoute');
             Route::post('car-travel/{car_travel_id}/selling', 'LodgerController@ticketSelling');
             Route::get('car-travel/{car_travel_id}/get-all-sold-places-for-route', 'LodgerController@getAllSoldPlacesForRoute');
+            Route::post('car-travel/{car_travel_id}/multiple-selling', 'LodgerController@ticketMultipleSelling');
         });
     });
 });
