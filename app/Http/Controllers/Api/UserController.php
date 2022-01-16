@@ -1691,6 +1691,7 @@ class UserController extends Controller
     {
         $rules = [
             'travel_id' => 'required|exists:car_travel,id',
+            'user_id' => 'required|exists:users,id',
             'places' => 'required|array|between:1,4',
         ];
 
@@ -1717,116 +1718,133 @@ class UserController extends Controller
         ];
         **/
 
-
         $messages = [];
         $validator = $this->validator($request->all(), $rules, $messages);
         if ($validator->fails()) {
             return response()->json($validator->errors()->first(), 400, ['charset' => 'utf-8'],
                 JSON_UNESCAPED_UNICODE);
         }
-        $travel = CarTravel::find($request['travel_id']);
 
-        $order = new CarTravelOrder();
-        $order->car_travel_id = $travel->id;
-        $order->passenger_id = $request['user']->id;
-        $order->driver_id = Car::find($travel->car_id)->user_id;
-        $order->from_station_id = $travel->from_station_id;
-        $order->to_station_id = $travel->to_station_id;
-        $order->status = 'in_process';
-        $order->booking_time = Carbon::now();
-        $order->save();
+        DB::beginTransaction();
+        try {
 
+            $travel = CarTravel::find($request['travel_id']);
 
-        foreach ($request['places'] as $item) {
-            $carTravelPlace = CarTravelPlace::where('car_travel_id', $request['travel_id'])
-                ->where('number', $item['place_number'])->first();
-            if ($carTravelPlace) {
-                $placeNumber = $carTravelPlace->number;
-                if ($carTravelPlace->status == 'take') {
-                    return response()->json("Место #$placeNumber уже забронирован", 400,
-                        ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            $order = new CarTravelOrder();
+            $order->car_travel_id = $travel->id;
+            $order->passenger_id = $request['user_id'];
+            $order->driver_id = Car::find($travel->car_id)->user_id;
+            $order->from_station_id = $travel->from_station_id;
+            $order->to_station_id = $travel->to_station_id;
+            $order->status = 'in_process';
+            $order->booking_time = Carbon::now();
+            $order->save();
 
-                }
-                if ($carTravelPlace->status == 'in_process') {
-                    return response()->json("Место #$placeNumber уже забронирован", 400,
-                        ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            foreach ($request['places'] as $item) {
+                $str = substr($item,1);
+                $str = substr($str,0, strlen($str)-1);
+                $arr = explode(',', $str);
+                $arr1 = [];
+                foreach($arr as $tt){
+                    $ss = explode('=>', $tt);
+                    $arr1[str_replace("'",'', trim($ss[0]))] = str_replace("'", '', trim($ss[1]));
                 }
 
-                $carTravelPlace->car_travel_order_id = $order->id;
-                $carTravelPlace->passenger_id = $request['user']->id;
-                $carTravelPlace->status = 'in_process';
-                $carTravelPlace->booking_time = Carbon::now();
-                $carTravelPlace->save();
+                $item = $arr1;
 
-                $placeOrder = new CarTravelPlaceOrder();
-                $placeOrder->price = $carTravelPlace->price;
-                $placeOrder->car_travel_id = $carTravelPlace->car_travel_id;
-                $placeOrder->driver_id = $carTravelPlace->driver_id;
-                $placeOrder->number = $carTravelPlace->number;
-                $placeOrder->from_station_id = $carTravelPlace->from_station_id;
-                $placeOrder->to_station_id = $carTravelPlace->to_station_id;
-                $placeOrder->car_travel_order_id = $order->id;
-                $placeOrder->passenger_id = $request['user']->id;
-                $placeOrder->status = 'in_process';
-                $placeOrder->booking_time = Carbon::now();
-                $placeOrder->first_name = $item['first_name'];
-                $placeOrder->phone = $item['phone'];
-                $placeOrder->iin = $item['iin'];
-                $placeOrder->save();
+                $carTravelPlace = CarTravelPlace::where('car_travel_id', $request['travel_id'])
+                    ->where('number', $item['place_number'])->first();
+                if ($carTravelPlace) {
+                    $placeNumber = $carTravelPlace->number;
+                    if ($carTravelPlace->status == 'take') {
+                        return response()->json("Место #$placeNumber уже забронирован", 400,
+                            ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
 
-                $placeNumber = $carTravelPlace->number;
-                $newNumber = null;
-                $message = null;
-                switch ($placeNumber) {
-                    case $placeNumber > 0 && $placeNumber < 17:
-                        $newNumber = $placeNumber;
-                        $message = 'вниз';
-                        break;
-                    case $placeNumber > 16 && $placeNumber < 33:
-                        $newNumber = $placeNumber - 16;
-                        $message = 'вверх';
-                        break;
-                    case $placeNumber > 32 && $placeNumber < 35:
-                        $newNumber = 0;
-                        $message = 'вверх';
-                        break;
-                    case $placeNumber > 34 && $placeNumber < 37:
-                        $newNumber = 0;
-                        $message = 'вниз';
-                        break;
+                    }
+                    if ($carTravelPlace->status == 'in_process') {
+                        return response()->json("Место #$placeNumber уже забронирован", 400,
+                            ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+                    }
+
+                    $carTravelPlace->car_travel_order_id = $order->id;
+                    $carTravelPlace->passenger_id = $request['user_id'];
+                    $carTravelPlace->status = 'in_process';
+                    $carTravelPlace->booking_time = Carbon::now();
+                    $carTravelPlace->save();
+
+                    $placeOrder = new CarTravelPlaceOrder();
+                    $placeOrder->price = $carTravelPlace->price;
+                    $placeOrder->car_travel_id = $carTravelPlace->car_travel_id;
+                    $placeOrder->driver_id = $carTravelPlace->driver_id;
+                    $placeOrder->number = $carTravelPlace->number;
+                    $placeOrder->from_station_id = $carTravelPlace->from_station_id;
+                    $placeOrder->to_station_id = $carTravelPlace->to_station_id;
+                    $placeOrder->car_travel_order_id = $order->id;
+                    $placeOrder->passenger_id = $request['user_id'];
+                    $placeOrder->status = 'in_process';
+                    $placeOrder->booking_time = Carbon::now();
+                    $placeOrder->first_name = $item['first_name'];
+                    $placeOrder->phone = $item['phone'];
+                    $placeOrder->iin = $item['iin'];
+                    $placeOrder->save();
+
+                    $placeNumber = $carTravelPlace->number;
+                    $newNumber = null;
+                    $message = null;
+                    switch ($placeNumber) {
+                        case $placeNumber > 0 && $placeNumber < 17:
+                            $newNumber = $placeNumber;
+                            $message = 'вниз';
+                            break;
+                        case $placeNumber > 16 && $placeNumber < 33:
+                            $newNumber = $placeNumber - 16;
+                            $message = 'вверх';
+                            break;
+                        case $placeNumber > 32 && $placeNumber < 35:
+                            $newNumber = 0;
+                            $message = 'вверх';
+                            break;
+                        case $placeNumber > 34 && $placeNumber < 37:
+                            $newNumber = 0;
+                            $message = 'вниз';
+                            break;
+                    }
+
+                    Firebase::sendMultiple(User::where('id', $carTravelPlace->driver_id)
+                        ->where('push', 1)
+                        ->select('device_token')
+                        ->pluck('device_token')
+                        ->toArray(), [
+                        'title' => 'Saparline',
+                        'body' => "место $newNumber ($message) забронировано",
+                        'type' => 'driver_confirmation',
+                        'user_id' => $carTravelPlace->driver_id,
+                    ]);
+
+                } else {
+                    return response()->json("Место не найдено", 400, ['charset' => 'utf-8'],
+                        JSON_UNESCAPED_UNICODE);
                 }
-
-                Firebase::sendMultiple(User::where('id', $carTravelPlace->driver_id)
-                    ->where('push', 1)
-                    ->select('device_token')
-                    ->pluck('device_token')
-                    ->toArray(), [
-                    'title' => 'Saparline',
-                    'body' => "место $newNumber ($message) забронировано",
-                    'type' => 'driver_confirmation',
-                    'user_id' => $carTravelPlace->driver_id,
-                ]);
-
-            } else {
-                return response()->json("Место не найдено", 400, ['charset' => 'utf-8'],
-                    JSON_UNESCAPED_UNICODE);
             }
+
+
+            Firebase::sendMultiple(User::where('id', $request['user_id'])
+                ->where('push', 1)
+                ->select('device_token')
+                ->pluck('device_token')
+                ->toArray(), [
+                'title' => 'Saparline',
+                'body' => "Оплатите через каспи",
+                'type' => 'reservation',
+                'user_id' => $request['user_id'],
+            ]);
+
+            DB::commit();
+            return response()->json(['orderId' => $order->id], 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return response()->json("Server error: $exception", 500);
         }
-
-
-        Firebase::sendMultiple(User::where('id', $request['user']->id)
-            ->where('push', 1)
-            ->select('device_token')
-            ->pluck('device_token')
-            ->toArray(), [
-            'title' => 'Saparline',
-            'body' => "Оплатите через каспи",
-            'type' => 'reservation',
-            'user_id' => $request['user']->id,
-        ]);
-
-        return response()->json(['orderId' => $order->id], 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
-
     }
 }
 
