@@ -355,10 +355,17 @@ class UserController extends Controller
     function roleDriver(Request $request)
     {
         $user = $request['user'];
-        /*if($user->role == 'lodger') {
-            $user->confirmation = null;
-            $user->save();
-        }*/
+        if(is_null($user->passport_image)) {
+            if(!is_null($user->confirmation)) {
+                $user->confirmation = null;
+                $user->save();
+            }
+        } else {
+            if(is_null($user->confirmation)) {
+                $user->confirmation = 'confirm';
+                $user->save();
+            }
+        }
         switch ($user->confirmation) {
             case "confirm":
                 $user->role = 'driver';
