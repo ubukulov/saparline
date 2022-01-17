@@ -355,10 +355,10 @@ class UserController extends Controller
     function roleDriver(Request $request)
     {
         $user = $request['user'];
-        if($user->role == 'lodger') {
+        /*if($user->role == 'lodger') {
             $user->confirmation = null;
             $user->save();
-        }
+        }*/
         switch ($user->confirmation) {
             case "confirm":
                 $user->role = 'driver';
@@ -443,9 +443,70 @@ class UserController extends Controller
     public function roleLodger(Request $request)
     {
         $user = $request['user'];
-        $user->role = 'lodger';
-        $user->save();
-        return response()->json("Вы теперь посадчик", 200);
+        $lodger_cars = $user->lodger_cars;
+        if(count($lodger_cars) == 0) {
+            $user->confirmation = null;
+            $user->save();
+        } else {
+            if(is_null($user->confirmation)) {
+                $user->confirmation = 'confirm';
+                $user->save();
+            }
+        }
+
+        switch ($user->confirmation) {
+            case "confirm":
+                $user->role = 'lodger';
+                $user->save();
+
+                return response()->json(['message' => 'Вы теперь посадчик', 'user' => new UserResource($user)], 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+                break;
+
+            case "waiting":
+                return response()->json([
+                    'message' => 'Ожидайте, Админ проверяет ваши данные',
+                    'user' => new UserResource($user)
+                ], 202, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+                break;
+
+            case "reject":
+                return response()->json([
+                    'message' => 'Админ отклонил ваш запрос',
+                    'user' => new UserResource($user)
+                ], 203, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+                break;
+
+            default:
+                $rules = [
+                    'company_id' => 'required|exists:companies,id',
+                    'cars' => 'required|array',
+                ];
+
+                $messages = [
+                    'required' => 'Параметр :attribute обязательно',
+                    'array'    => 'Параметр :attribute должно быть массимом'
+                ];
+
+                $validator = $this->validator($request->all(), $rules, $messages);
+                if ($validator->fails()) {
+                    return response()->json($validator->errors()->first(), 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+                }
+
+                foreach($request['cars'] as $car_id){
+                    $user->lodger_cars()->attach($user->id, ['car_id' => $car_id]);
+                }
+
+                $user->confirmation = 'waiting';
+                $user->role = 'lodger';
+                $user->save();
+
+                return response()->json([
+                    'message' => 'Запрос отправлен Админу',
+                    'user' => new UserResource($user)
+                ], 201, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+
+                break;
+        }
     }
 
     function passwordResetSend(Request $request)
@@ -1745,16 +1806,18 @@ class UserController extends Controller
             $order->save();
 
             foreach ($request['places'] as $item) {
-                $str = substr($item,1);
-                $str = substr($str,0, strlen($str)-1);
-                $arr = explode(',', $str);
-                $arr1 = [];
-                foreach($arr as $tt){
-                    $ss = explode('=>', $tt);
-                    $arr1[str_replace("'",'', trim($ss[0]))] = str_replace("'", '', trim($ss[1]));
-                }
+                if(gettype($item) == 'string') {
+                    $str = substr($item,1);
+                    $str = substr($str,0, strlen($str)-1);
+                    $arr = explode(',', $str);
+                    $arr1 = [];
+                    foreach($arr as $tt){
+                        $ss = explode('=>', $tt);
+                        $arr1[str_replace("'",'', trim($ss[0]))] = str_replace("'", '', trim($ss[1]));
+                    }
 
-                $item = $arr1;
+                    $item = $arr1;
+                }
 
                 $carTravelPlace = CarTravelPlace::where('car_travel_id', $request['travel_id'])
                     ->where('number', $item['place_number'])->first();
