@@ -1357,6 +1357,7 @@ class UserController extends Controller
     //Driver , Мои пассажиры
     function travelMyPassengers(Request $request)
     {
+        //return response()->json("request: $request");
         $rules = [
             'carId' => 'exists:cars,id'
         ];
@@ -1369,12 +1370,12 @@ class UserController extends Controller
         }
 
 
-        $places = CarTravelPlaceOrder::join('car_travel', 'car_travel_place_orders.car_travel_id', 'car_travel.id')
+        $places = CarTravelPlaceOrder::where('car_travel_place_orders.status', 'take')
+            ->join('car_travel', 'car_travel_place_orders.car_travel_id', 'car_travel.id')
             ->join('cars', 'car_travel.car_id', 'cars.id')
             ->where('cars.user_id', $request['user']->id)
             ->whereRaw("DATE(car_travel.destination_time) > NOW()")
             ->select('car_travel_place_orders.*')
-            ->where('status', 'take')
             //->whereNotNull('passenger_id')
             ->orderBy('car_travel_place_orders.updated_at', 'desc');
 

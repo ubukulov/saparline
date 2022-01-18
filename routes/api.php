@@ -63,7 +63,6 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
     Route::post('checking-confirmation-for-change-role', 'UserController@checkingConfirmationForChangeRole');
 
-
     Route::middleware(['apiCheck'])->group(function () {
         Route::post('profile/logout','UserController@logout');
         Route::post('profile/confirmation','UserController@confirmation');
