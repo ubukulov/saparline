@@ -61,6 +61,8 @@ Route::prefix('v1')->namespace('Api')->group(function () {
     Route::get('travel-stations','UserController@travelStations');
     Route::get('companies', 'CashierController@getCompanies');
 
+    Route::post('checking-confirmation-for-change-role', 'UserController@checkingConfirmationForChangeRole');
+
 
     Route::middleware(['apiCheck'])->group(function () {
         Route::post('profile/logout','UserController@logout');

@@ -355,7 +355,7 @@ class UserController extends Controller
     function roleDriver(Request $request)
     {
         $user = $request['user'];
-        if(is_null($user->passport_image)) {
+        /*if(is_null($user->passport_image)) {
             if(!is_null($user->confirmation)) {
                 $user->confirmation = null;
                 $user->save();
@@ -365,7 +365,7 @@ class UserController extends Controller
                 $user->confirmation = 'confirm';
                 $user->save();
             }
-        }
+        }*/
         switch ($user->confirmation) {
             case "confirm":
                 $user->role = 'driver';
@@ -443,6 +443,7 @@ class UserController extends Controller
     {
         $user = $request['user'];
         $user->role = 'passenger';
+        //$user->confirmation = null;
         $user->save();
         return response()->json("Вы теперь пассажир", 200);
     }
@@ -450,8 +451,7 @@ class UserController extends Controller
     public function roleLodger(Request $request)
     {
         $user = $request['user'];
-        $lodger_cars = $user->lodger_cars;
-        if(count($lodger_cars) == 0) {
+        if($user->company_id == null) {
             $user->confirmation = null;
             $user->save();
         } else {
@@ -1375,7 +1375,7 @@ class UserController extends Controller
             ->whereRaw("DATE(car_travel.destination_time) > NOW()")
             ->select('car_travel_place_orders.*')
             ->where('status', 'take')
-            ->whereNotNull('passenger_id')
+            //->whereNotNull('passenger_id')
             ->orderBy('car_travel_place_orders.updated_at', 'desc');
 
         if ($request['carId'] != null) {
@@ -1918,6 +1918,61 @@ class UserController extends Controller
         } catch (\Exception $exception) {
             DB::rollBack();
             return response()->json("Server error: $exception", 500);
+        }
+    }
+
+    public function checkingConfirmationForChangeRole(Request $request)
+    {
+        $data = $request->all();
+        $user_id = $data['user_id'];
+        $roleName = $data['role'];
+        $user = User::findOrFail($user_id);
+        switch ($roleName) {
+            case "lodger":
+                if(is_null($user->company_id)) {
+                    // первый раз подает заявку на посадчика
+                    $user->confirmation = null;
+                    $user->role = 'lodger';
+                    $user->save();
+                    return response()->json([
+                        'lodger' => false,
+                    ]);
+                } else {
+                    $user->confirmation = 'confirm';
+                    $user->role = 'lodger';
+                    $user->save();
+                    return response()->json([
+                        'lodger' => true,
+                    ]);
+                }
+                break;
+
+            case "driver":
+                if(is_null($user->passport_image)) {
+                    // первый раз подает заявку на водителя
+                    $user->confirmation = null;
+                    $user->role = 'driver';
+                    $user->save();
+                    return response()->json([
+                        'driver' => false,
+                    ]);
+                } else {
+                    $user->confirmation = 'confirm';
+                    $user->role = 'driver';
+                    $user->save();
+                    return response()->json([
+                        'driver' => true,
+                    ]);
+                }
+                break;
+
+            case "passenger":
+                $user->role = 'passenger';
+                $user->save();
+                return response()->json([
+                    'passenger' => true,
+                ]);
+                break;
         }
     }
 }
