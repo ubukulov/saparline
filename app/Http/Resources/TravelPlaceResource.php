@@ -3,12 +3,12 @@
 namespace App\Http\Resources;
 
 use App\Models\Car;
-use App\Models\CommentDislike;
-use App\Models\CommentLike;
-use App\Models\Favorite;
-use App\Models\Post;
+//use App\Models\CommentDislike;
+//use App\Models\CommentLike;
+//use App\Models\Favorite;
+//use App\Models\Post;
 use App\Models\Station;
-use App\Models\Subscription;
+//use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -37,6 +37,9 @@ class TravelPlaceResource extends JsonResource
             'booking_time' => $this->booking_time,
             'status' => $this->status,
             'number'=> $this->number,
+            'first_name'=> $this->first_name,
+            'phone'=> $this->phone,
+            'iin'=> $this->iin,
 
         ];
 

@@ -355,17 +355,19 @@ class UserController extends Controller
     function roleDriver(Request $request)
     {
         $user = $request['user'];
-        /*if(is_null($user->passport_image)) {
-            if(!is_null($user->confirmation)) {
+        if($user->passport_image == null) {
+            if($user->confirmation != null) {
                 $user->confirmation = null;
+				$user->role = 'driver';
                 $user->save();
             }
         } else {
-            if(is_null($user->confirmation)) {
+            if($user->confirmation == null) {
                 $user->confirmation = 'confirm';
+				$user->role = 'driver';
                 $user->save();
             }
-        }*/
+        }
         switch ($user->confirmation) {
             case "confirm":
                 $user->role = 'driver';
@@ -443,7 +445,6 @@ class UserController extends Controller
     {
         $user = $request['user'];
         $user->role = 'passenger';
-        //$user->confirmation = null;
         $user->save();
         return response()->json("Вы теперь пассажир", 200);
     }
@@ -1037,7 +1038,7 @@ class UserController extends Controller
     //
     function myTickets(Request $request)
     {
-        $places = CarTravelPlace::join('car_travel', 'car_travel_places.car_travel_id', 'car_travel.id')
+        /*$places = CarTravelPlace::join('car_travel', 'car_travel_places.car_travel_id', 'car_travel.id')
             ->join('stations as from_station', 'from_station.id', 'car_travel.from_station_id')
             ->join('cities as from_city', 'from_city.id', 'from_station.city_id')
             ->join('stations as to_station', 'to_station.id', 'car_travel.to_station_id')
@@ -1071,8 +1072,42 @@ class UserController extends Controller
                 'car_travel_place_orders.iin'
             )
             ->orderBy('car_travel_places.id', 'desc')
-            ->get();
+            ->get();*/
 
+        $places = CarTravelPlaceOrder::join('car_travel', 'car_travel_place_orders.car_travel_id', 'car_travel.id')
+            ->join('stations as from_station', 'from_station.id', 'car_travel.from_station_id')
+            ->join('cities as from_city', 'from_city.id', 'from_station.city_id')
+            ->join('stations as to_station', 'to_station.id', 'car_travel.to_station_id')
+            ->join('cities as to_city', 'to_city.id', 'to_station.city_id')
+            ->join('cars', 'car_travel.car_id', 'cars.id')
+            ->join('car_types', 'cars.car_type_id', 'car_types.id')
+            ->join('users', 'users.id', 'car_travel_place_orders.driver_id')
+            ->where('car_travel_place_orders.passenger_id', $request['user']->id)
+            ->whereRaw("car_travel.destination_time > CURRENT_TIMESTAMP()")
+            ->whereIn('car_travel_place_orders.status', ['take', 'in_process'])
+            ->select(
+                'car_travel_place_orders.id',
+                'car_travel_place_orders.number',
+                'car_travel_place_orders.price',
+                'car_travel_place_orders.status',
+                'car_travel.departure_time',
+                'car_travel.destination_time',
+                'from_city.name as from_city',
+                'from_station.name as from_station',
+                'to_city.name as to_city',
+                'to_station.name as to_station',
+                'cars.state_number as car_state_number',
+                'car_types.name as car_type',
+                'car_types.count_places as car_type_count_places',
+                'users.phone as phone_number',
+                'users.bank_card',
+                'users.card_fullname',
+                'car_travel_place_orders.first_name',
+                'car_travel_place_orders.phone',
+                'car_travel_place_orders.iin'
+            )
+            ->orderBy('car_travel_place_orders.id', 'desc')
+            ->get();
 
         return response()->json($places);
     }
@@ -1357,7 +1392,6 @@ class UserController extends Controller
     //Driver , Мои пассажиры
     function travelMyPassengers(Request $request)
     {
-        //return response()->json("request: $request");
         $rules = [
             'carId' => 'exists:cars,id'
         ];
@@ -1369,23 +1403,22 @@ class UserController extends Controller
             return response()->json($validator->errors()->first(), 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
 
-
         $places = CarTravelPlaceOrder::where('car_travel_place_orders.status', 'take')
             ->join('car_travel', 'car_travel_place_orders.car_travel_id', 'car_travel.id')
             ->join('cars', 'car_travel.car_id', 'cars.id')
-            ->where('cars.user_id', $request['user']->id)
             ->whereRaw("DATE(car_travel.destination_time) > NOW()")
-            ->select('car_travel_place_orders.*')
+            ->select('car_travel_place_orders.*');
             //->whereNotNull('passenger_id')
-            ->orderBy('car_travel_place_orders.updated_at', 'desc');
+
+        if($request['user']->role == 'driver') {
+            $places = $places->where('cars.user_id', $request['user']->id);
+        }
 
         if ($request['carId'] != null) {
             $places = $places->where('cars.id', $request['carId']);
         }
 
-
-        $places = $places->get();
-
+        $places = $places->orderBy('car_travel_place_orders.updated_at', 'desc')->get();
 
         return response()->json(TravelPlaceResource::collection($places), 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
 

@@ -103,11 +103,11 @@ class LodgerController extends Controller
         $iin = $data['iin'];
 
         if ($this->checkingForDoubleIin($car_travel_id, $iin)) {
-            return response()->json("С таким $iin уже продано билет. Укажите другой ИИН", 409);
+            return response()->json("С таким $iin уже продано билет. Укажите другой ИИН", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
 
         if ($this->checkingForPhone($car_travel_id, $phone)) {
-            return response()->json("В одном поездке может только 4 раза повторяется телефон. Укажите другой", 409);
+            return response()->json("В одном поездке может только 4 раза повторяется телефон. Укажите другой", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
 
         DB::beginTransaction();
@@ -129,11 +129,11 @@ class LodgerController extends Controller
 
             if ($car_travel_place) {
                 if ($car_travel_place->status == 'take') {
-                    return response()->json("Место #$place_number уже забронирован", 400);
+                    return response()->json("Место #$place_number уже забронирован", 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
                 }
 
                 if ($car_travel_place->status == 'in_process') {
-                    return response()->json("Место #$place_number уже забронирован", 400);
+                    return response()->json("Место #$place_number уже забронирован", 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
                 }
 
                 $car_travel_place->car_travel_order_id = $car_travel_order->id;
@@ -141,7 +141,7 @@ class LodgerController extends Controller
                 $car_travel_place->passenger_id = $user_id;
                 $car_travel_place->save();
             } else {
-                return response()->json("Место не найдено", 400);
+                return response()->json("Место не найдено", 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
             }
 
             $car_travel_place_order = new CarTravelPlaceOrder();
@@ -161,7 +161,7 @@ class LodgerController extends Controller
 
             DB::commit();
 
-            return response()->json('Место успешно продано');
+            return response()->json('Место успешно продано', 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
 
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -225,11 +225,11 @@ class LodgerController extends Controller
             }
 
             if ($this->checkingForDoubleIin($car_travel_id, $datum['iin'])) {
-                return response()->json("С таким" . $datum['iin'] . " уже продано билет. Укажите другой ИИН", 409);
+                return response()->json("С таким" . $datum['iin'] . " уже продано билет. Укажите другой ИИН", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
             }
 
             if ($this->checkingForPhone($car_travel_id, $datum['phone'])) {
-                return response()->json("В одном поездке может только 4 раза повторяется телефон. Укажите другой", 409);
+                return response()->json("В одном поездке может только 4 раза повторяется телефон. Укажите другой", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
             }
         }
 
@@ -259,11 +259,11 @@ class LodgerController extends Controller
 
                 if ($car_travel_place) {
                     if ($car_travel_place->status == 'take') {
-                        return response()->json("Место #$place_number уже забронирован", 400);
+                        return response()->json("Место #$place_number уже забронирован", 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
                     }
 
                     if ($car_travel_place->status == 'in_process') {
-                        return response()->json("Место #$place_number уже забронирован", 400);
+                        return response()->json("Место #$place_number уже забронирован", 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
                     }
 
                     $car_travel_place->car_travel_order_id = $car_travel_order->id;
@@ -271,7 +271,7 @@ class LodgerController extends Controller
                     $car_travel_place->passenger_id = $user_id;
                     $car_travel_place->save();
                 } else {
-                    return response()->json("Место не найдено", 400);
+                    return response()->json("Место не найдено", 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
                 }
 
                 $car_travel_place_order = new CarTravelPlaceOrder();
@@ -291,7 +291,7 @@ class LodgerController extends Controller
 
                 DB::commit();
 
-                return response()->json('Место успешно продано');
+                return response()->json('Место успешно продано', 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
 
             } catch (\Exception $exception) {
                 DB::rollBack();
