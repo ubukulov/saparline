@@ -102,6 +102,8 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         Route::get('call', 'UserController@call');
         Route::get('order/take/{id}', 'UserController@orderTake');
 
+        Route::get('get-user-confirmation-value', 'UserController@getUserConfirmationValue');
+
         # Lodgers Api
         Route::group(['prefix' => 'lodger'], function(){
             Route::get('company/{company_id}/get-cars-list', 'LodgerController@getCarsList');

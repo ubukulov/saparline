@@ -355,7 +355,7 @@ class UserController extends Controller
     function roleDriver(Request $request)
     {
         $user = $request['user'];
-        if($user->passport_image == null) {
+        /*if($user->passport_image == null) {
             if($user->confirmation != null) {
                 $user->confirmation = null;
 				$user->role = 'driver';
@@ -367,7 +367,7 @@ class UserController extends Controller
 				$user->role = 'driver';
                 $user->save();
             }
-        }
+        }*/
         switch ($user->confirmation) {
             case "confirm":
                 $user->role = 'driver';
@@ -1420,6 +1420,17 @@ class UserController extends Controller
 
         $places = $places->orderBy('car_travel_place_orders.updated_at', 'desc')->get();
 
+        $arr = [
+            '20-01-2022' => [
+                [],
+                []
+            ],
+            '21-01-2022' => [
+                [],
+                []
+            ],
+        ];
+
         return response()->json(TravelPlaceResource::collection($places), 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
 
     }
@@ -2008,6 +2019,11 @@ class UserController extends Controller
                 ]);
                 break;
         }
+    }
+
+    public function getUserConfirmationValue(Request $request)
+    {
+        return $request['user']->confirmation;
     }
 }
 
