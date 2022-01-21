@@ -16,6 +16,7 @@ use App\Models\CarType;
 use App\Models\City;
 use App\Models\Company;
 use App\Models\Feedback;
+use App\Models\LodgerCar;
 use App\Models\Setting;
 use App\Models\Station;
 use App\Models\Travel;
@@ -1414,24 +1415,60 @@ class UserController extends Controller
             $places = $places->where('cars.user_id', $request['user']->id);
         }
 
+        if ($request['user']->role == 'lodger' && $request['carId'] == null) {
+            $lodger_cars_ids = LodgerCar::where(['user_id' => $request['user']->id])->select('car_id')->get();
+            $places = $places->whereIn('cars.id', $lodger_cars_ids);
+        }
+
         if ($request['carId'] != null) {
             $places = $places->where('cars.id', $request['carId']);
         }
 
         $places = $places->orderBy('car_travel_place_orders.updated_at', 'desc')->get();
 
-        $arr = [
-            '20-01-2022' => [
-                [],
-                []
-            ],
-            '21-01-2022' => [
-                [],
-                []
-            ],
-        ];
+        $collect = collect();
+        $arr = [];
+        if (count($places) != 0) {
+            foreach($places as $place) {
+                $st = Station::join('cities','cities.id','stations.city_id')
+                    ->where('stations.id',$place->from_station_id)
+                    ->select('stations.id','stations.name as station','cities.name as city','lat','lng')
+                    ->first();
 
-        return response()->json(TravelPlaceResource::collection($places), 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+                $st1 = Station::join('cities','cities.id','stations.city_id')
+                    ->where('stations.id',$place->to_station_id)
+                    ->select('stations.id','stations.name as station','cities.name as city','lat','lng')
+                    ->first();
+                $driver = User::where('id',$place->driver_id)->select('id','name','phone','avatar')->first();
+                $passenger = User::where('id',$place->passenger_id)->select('id','name','phone','avatar')->first();
+                $car = Car::join('car_travel','car_travel.car_id','cars.id')
+                    ->where('car_travel.id',$place->car_travel_id)
+                    ->select('cars.*')
+                    ->first();
+                $place->from = $st;
+                $place->to = $st1;
+                $place->driver = $driver;
+                $place->passenger = $passenger;
+                $place->car = $car;
+            }
+
+            foreach($places as $place) {
+                $updated_at = $place->updated_at->format('Y-m-d');
+                if(array_key_exists($updated_at, $arr)) {
+                    $arr[$updated_at][] = $place;
+                } else {
+                    $arr[$updated_at][] = $place;
+                }
+            }
+
+            foreach($arr as $key=>$value) {
+                $collect->put($key, $value);
+            }
+        }
+
+
+//        return response()->json(TravelPlaceResource::collection($places), 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+        return response()->json($collect, 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
 
     }
 
