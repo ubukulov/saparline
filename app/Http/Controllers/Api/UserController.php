@@ -1424,9 +1424,13 @@ class UserController extends Controller
             $places = $places->where('cars.id', $request['carId']);
         }
 
+        if($request['date_string'] != null) {
+            $places = $places->whereDate('car_travel.departure_time', '=', $request['date_string']);
+        }
+
         $places = $places->orderBy('car_travel_place_orders.updated_at', 'desc')->get();
 
-        $collect = collect();
+        /*$collect = collect();
         $arr = [];
         if (count($places) != 0) {
             foreach($places as $place) {
@@ -1464,11 +1468,11 @@ class UserController extends Controller
             foreach($arr as $key=>$value) {
                 $collect->put($key, $value);
             }
-        }
+        }*/
 
 
-//        return response()->json(TravelPlaceResource::collection($places), 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
-        return response()->json($collect, 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+        return response()->json(TravelPlaceResource::collection($places), 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+//        return response()->json($collect, 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
 
     }
 
