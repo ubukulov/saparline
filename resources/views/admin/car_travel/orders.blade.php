@@ -64,6 +64,7 @@
                                     <td>{{$travel->booking_time}}</td>
 
 
+                                    <td><a class="btn btn-warning" href="{{route('admin.car_travel.order.Detail',$travel->id)}}">Посмотреть</a></td>
                                     <td><a class="btn btn-primary" href="{{route('admin.car_travel.orderTake',$travel->id)}}">Одобрить</a></td>
                                     <td><a class="btn btn-danger" href="{{route('admin.car_travel.orderReject',$travel->id)}}">Отклонить</a></td>
                                 </tr>

@@ -33,7 +33,7 @@ class UserController extends Controller
             ->join('car_types','car_types.id','cars.car_type_id')
             ->where('confirmation','confirm')
             ->orderBy('users.id','desc')
-            ->select('users.*','car_types.name as car_type','car_types.count_places','cars.state_number');
+            ->select('users.*','car_types.name as car_type','car_types.count_places','cars.state_number', 'cars.id as car_id');
         if ($request['search']) {
             $user = $user->where(function ($query) use ($request) {
                 $query->where('users.phone', 'LIKE', "%$request->search%")
@@ -59,17 +59,21 @@ class UserController extends Controller
         return view('admin.user.passengers', $data);
     }
 
-    public function driver($id)
+    public function driver($car_id)
     {
-        $data['user'] = User::findOrFail($id);
-        $data['car'] = Car::where('user_id',$id)->first();
+        //$data['user'] = User::findOrFail($id);
+        //$data['car'] = Car::where('user_id',$id)->first();
+        $data['car'] = Car::findOrFail($car_id);
+        $user_id = $data['car']->user_id;
+        $data['user'] = User::findOrFail($user_id);
+
         $data['travels'] = CarTravel::join('cars','cars.id','car_travel.car_id')
             ->join('stations as from_station','from_station.id','car_travel.from_station_id')
             ->join('stations as to_station','to_station.id','car_travel.to_station_id')
             ->join('cities as from_city','from_city.id','from_station.city_id')
             ->join('cities as to_city','to_city.id','to_station.city_id')
 
-            ->where('cars.user_id',$id)
+            ->where('cars.user_id',$user_id)
             ->orderBy('car_travel.id','desc')
             ->select('car_travel.id','departure_time','destination_time',
                 'from_city.name as from_city','from_station.name as from_station',
@@ -86,7 +90,7 @@ class UserController extends Controller
             ->join('users as passenger','passenger.id','car_travel_places.passenger_id')
 
             ->where('car_travel_places.added','admin')
-            ->where('car_travel_places.driver_id',$id)
+            ->where('car_travel_places.driver_id',$user_id)
 
             ->select(
                 'car_travel_places.id',
@@ -156,7 +160,6 @@ class UserController extends Controller
             ->orderBy('cars.id','desc')
             ->select('cars.*', 'car_types.name as car_type','car_types.count_places','cars.state_number')
             ->paginate(50);
-
         return response()->view('admin.user.confirmation',$data);
 
         /*$data['drivers'] = User::where('role','driver')
@@ -564,5 +567,15 @@ class UserController extends Controller
             ->orderBy('users.id','desc')
             ->paginate(50);
         return response()->view('admin.user.lodgers', compact('lodgers'));
+    }
+
+    public function orderDetail($car_travel_order_id)
+    {
+        $car_travel_place_orders = CarTravelPlaceOrder::where(['car_travel_order_id' => $car_travel_order_id])
+            ->join('car_travel', 'car_travel.id', '=', 'car_travel_place_orders.car_travel_id')
+            ->join('cars', 'cars.id', '=', 'car_travel.car_id')
+            ->selectRaw('car_travel_place_orders.*, cars.car_type_id')
+            ->get();
+        return view('admin.car_travel.order_details', compact('car_travel_place_orders'));
     }
 }

@@ -19,7 +19,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 		Route::get('cities/list', 'CashierController@getCities');
 		Route::get('cities/{id}/get-stations', 'CashierController@getCityStationsList');
 		Route::post('create-trip', 'CashierController@createTripByCashier');
-		Route::get('get-travels-upcoming', 'CashierController@travelUpcoming');
+		Route::get('{cashier_id}/get-travels-upcoming', 'CashierController@travelUpcoming');
 		Route::get('car/{id}/get-info', 'CashierController@getCarInfo');
 
 		# Продажа билетов

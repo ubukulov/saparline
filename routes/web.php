@@ -26,6 +26,7 @@ Route::name('admin.')->namespace('Admin')->group(function () {
         Route::name('car_travel.')->prefix('car_travel')->group(function () {
             Route::get('/', 'UserController@travels')->name('list');
             Route::get('orders', 'UserController@orders')->name("orders");
+            Route::get('/orders/{id}', 'UserController@orderDetail')->name('order.Detail');
             Route::get('order/take/{id}', 'UserController@orderTake')->name("orderTake");
             Route::get('order/reject/{id}', 'UserController@orderReject')->name("orderReject");
             Route::get('cancelOrders', 'UserController@cancelOrders')->name("cancelOrders");

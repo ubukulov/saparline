@@ -197,9 +197,11 @@ class CashierController extends Controller {
 		}
 	}
 
-	public function travelUpcoming(){
+	public function travelUpcoming($cashier_id){
+		$cashier = Cashier::findOrFail($cashier_id);
         $travels = CarTravel::join('cars','car_travel.car_id','cars.id')
             //->whereRaw("car_travel.destination_time >= CURRENT_TIMESTAMP()")
+			->where(['car_travel.from_city_id' => $cashier->city_id])
 			->whereDate('car_travel.departure_time', Carbon::today()->toDateString())
             ->orderBy('car_travel.id','desc')
             ->select('car_travel.*')
@@ -434,9 +436,10 @@ class CashierController extends Controller {
 		$data = $request->all();
 		$from_city_id = $data['from_city_id'];
 		$to_city_id = $data['to_city_id'];
-		$filter_id = $data['filter_id'];
+		//$filter_id = $data['filter_id'];
+		$departure_time = substr($data['departure_time'],0,10);
 
-		if ($filter_id == 0) {
+		/*if ($filter_id == 0) {
 			$travels = CarTravel::join('cars','car_travel.car_id','cars.id')
 			//->whereDate('car_travel.destination_time', Carbon::today()->toDateString())
 			->whereDate('car_travel.departure_time', '=', date('Y-m-d'))
@@ -455,8 +458,16 @@ class CashierController extends Controller {
             ->select('car_travel.*')
             ->limit(100)
             ->get();
-		}
-
+		}*/
+		
+		$travels = CarTravel::join('cars','car_travel.car_id','cars.id')
+			//->whereDate('car_travel.destination_time', Carbon::today()->toDateString())
+			->whereDate('car_travel.departure_time', '=', $departure_time)
+			->where(['from_city_id' => $from_city_id, 'to_city_id' => $to_city_id])
+            ->orderBy('car_travel.id','desc')
+            ->select('car_travel.*')
+            ->limit(100)
+            ->get();
 
         return response()->json(TravelResource::collection($travels),200);
 	}
