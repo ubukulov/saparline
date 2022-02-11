@@ -39,6 +39,9 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 		Route::post('intercity/get-travels-by-filter', 'CashierController@getTravelsByFilter');
 		Route::get('car-travel/{id}/get-information-about-car-travel', 'CashierController@getInformationAboutCarTravel');
 		Route::get('car-travel/{id}/get-sold-tickets-for-current-route', 'CashierController@getSoldTicketsForCurrentRoute');
+
+		# Удалить поездку
+        Route::get('intercity/{car_travel_id}/destroy', 'CashierController@destroyTravel');
 	});
 
     Route::post('profile/register','UserController@register');

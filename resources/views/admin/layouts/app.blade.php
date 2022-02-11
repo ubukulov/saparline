@@ -179,6 +179,11 @@
                         <span>Типы транспортов</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{route('admin.rest.index')}}">
+                        <span>Зоны отдыха</span>
+                    </a>
+                </li>
 
             </ul>
         </div>

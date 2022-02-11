@@ -459,7 +459,7 @@ class CashierController extends Controller {
             ->limit(100)
             ->get();
 		}*/
-		
+
 		$travels = CarTravel::join('cars','car_travel.car_id','cars.id')
 			//->whereDate('car_travel.destination_time', Carbon::today()->toDateString())
 			->whereDate('car_travel.departure_time', '=', $departure_time)
@@ -513,4 +513,10 @@ class CashierController extends Controller {
 
 		return response()->json($car_travel_sold_tickets);
 	}
+
+	public function destroyTravel($car_travel_id)
+    {
+        CarTravel::destroy($car_travel_id);
+        return response()->json('Success', 200);
+    }
 }

@@ -130,5 +130,8 @@ Route::name('admin.')->namespace('Admin')->group(function () {
         });
 
         //Route::get('/firebase/send', 'CashierController@firebase');
+
+        # Rest Places
+        Route::resource('rest', 'RestController');
     });
 });
