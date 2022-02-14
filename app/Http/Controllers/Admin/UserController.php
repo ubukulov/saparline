@@ -21,6 +21,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\Company;
 
 class UserController extends Controller
 
@@ -203,7 +204,11 @@ class UserController extends Controller
     }
     public function confirmationReject($id){
 
-        User::where('id',$id)->update(['confirmation' => 'reject']);
+        //User::where('id',$id)->update(['confirmation' => 'reject']);
+		
+		$car = Car::findOrFail($id);
+		$car->is_confirmed = 2;
+		$car->save();
 
         Firebase::sendMultiple(User::where('id',$id)->select('device_token')->pluck('device_token')->toArray(),[
             'title' => 'Saparline',
@@ -275,8 +280,13 @@ class UserController extends Controller
         /*$l = User::findOrFail($id);
         $l->delete();
         return redirect()->back();*/
-        $user = User::findOrFail($id);
-
+        //$user = User::findOrFail($id);
+		$car = Car::findOrFail($id);
+		if($car) {
+			Car::destroy($id);
+		}
+		
+		return redirect()->route('admin.user.drivers');
     }
 
 
@@ -578,4 +588,48 @@ class UserController extends Controller
             ->get();
         return view('admin.car_travel.order_details', compact('car_travel_place_orders'));
     }
+	
+	public function editLodger($lodger_id)
+	{
+		$lodger = User::findOrFail($lodger_id);
+		$companies = Company::all();
+		return view('admin.user.editLodger', compact('lodger', 'companies'));
+	}
+	
+	public function saveLodger(Request $request, $id)
+	{
+		$lodger = User::findOrFail($id);
+		$data = $request->all();
+		$lodger->name = $data['name'];
+		$lodger->phone = $data['phone'];
+		$lodger->company_id = $data['company_id'];
+		$lodger->save();
+		return redirect()->route('admin.user.lodgers');
+	}
+	
+	public function destroyLodger($lodger_id)
+	{
+		$lodger = User::findOrFail($lodger_id);
+		if($lodger){
+			User::destroy($lodger_id);
+		}
+		
+		return redirect()->route('admin.user.lodgers');
+	}
+	
+	public function destroyPassenger($passenger_id)
+	{
+		User::destroy($passenger_id);
+		
+		return redirect()->route('admin.user.passengers');
+	}
+	
+	public function soldTickets()
+	{
+		$soldTickets = CarTravelPlaceOrder::where(['status' => 'take'])
+					->with('driver', 'from_station', 'to_station', 'car_travel')
+					->orderBy('id', 'DESC')
+					->paginate(15);
+		return view('admin.user.soldTickets', compact('soldTickets'));
+	}
 }

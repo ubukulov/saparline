@@ -30,11 +30,16 @@ class CarController extends Controller
         $car = Car::findOrFail($id);
         $car->update($request->all());
 
-        if (!CompanyCar::exists($request->input('company_id'), $car->id)) {
-            CompanyCar::create([
+		$company_car = CompanyCar::where(['car_id' => $car->id])->first();
+		if ($company_car) {
+			$company_car->company_id = $request->input('company_id');
+			$company_car->save();
+		} else {
+			CompanyCar::create([
                 'company_id' => $request->input('company_id'), 'car_id' => $car->id
             ]);
-        }
+		}
+
         return redirect()->route('admin.car.index');
     }
 }

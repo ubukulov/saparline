@@ -61,6 +61,9 @@ Route::name('admin.')->namespace('Admin')->group(function () {
             Route::get('lodgers/confirmation', 'UserController@confirmationLodger')->name('confirmationLodger');
             Route::get('lodgers/confirmation/{id}/confirm', 'UserController@confirmLodger')->name('confirm.Lodger');
             Route::get('lodgers/confirmation/{id}/reject', 'UserController@rejectLodger')->name('reject.Lodger');
+			Route::get('lodgers/{id}/edit', 'UserController@editLodger')->name('editLodger');
+			Route::post('lodgers/{id}/update', 'UserController@saveLodger')->name('saveLodger');
+			Route::get('lodgers/{id}/destroy', 'UserController@destroyLodger')->name('destroyLodger');
         });
 
 
@@ -114,6 +117,7 @@ Route::name('admin.')->namespace('Admin')->group(function () {
         Route::post('sendMultiple', 'MainController@sendMultiple');
 
         Route::resource('company', 'CompanyController');
+		Route::get('company/{id}/destroy', 'CompanyController@destroy')->name('companyDelete');
 
         # Cars
         Route::name('car.')->prefix('cars')->group(function(){
@@ -129,9 +133,11 @@ Route::name('admin.')->namespace('Admin')->group(function () {
             Route::post('/{id}/update', 'CashierController@update')->name('update');
         });
 
-        //Route::get('/firebase/send', 'CashierController@firebase');
+        Route::get('/firebase/send', 'CashierController@firebase');
 
         # Rest Places
         Route::resource('rest', 'RestController');
+		
+		Route::get('sold-tickets', 'UserController@soldTickets')->name('soldTickets');
     });
 });

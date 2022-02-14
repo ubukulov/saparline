@@ -54,19 +54,71 @@ class CashierController extends Controller
 
     public function firebase()
     {
-        /*$users = User::whereRaw('id > 5426 AND id < 5468')->whereRole('passenger')->get();
-        $ids = [5410];
-        foreach($users as $user) {
+		$userIds = [6461
+,6485
+,6574
+,6576
+,6666
+,6668
+,6701
+,6704
+,6718
+,6719
+,6720
+,6721
+,6722
+,6723
+,6724
+,6726
+,6730
+,6731
+,6732
+,6734
+,6736
+,6737
+,6740
+,6742
+,6744
+,6746
+,6747
+,6749
+,6753
+,6754
+,6755
+,6756
+,6759
+,6760
+,6761
+,6763
+,6765
+,6766
+,6769
+,6770
+,6771
+,6773
+,6774
+,6775
+,6776
+,6777
+,6782
+,6783
+,6784
+,6785
+,6786];
+        //$users = User::whereIn('id', $userIds)->whereRole('passenger')->get();
+        //$ids = [5410];
+        /*foreach($users as $user) {
             $ids[] = $user->id;
-        }
+        }*/
 
-        $message = "SaparLine-ды қайта ашып қолдансаңыз болады. Келтірілген қолайлық үшін, кешірім сұраймыз.";
-        $message2 = "Егерде сұрақтар болған жағдайда, +7707 190 90 09 хабарлассаңыз болады.";
-        Firebase::sendMultiple(User::whereIn('id', [$ids])
+		//$ids = [5410,6794];
+		$ids = [5410];
+        $message = "Уважаемый пользователь, мы обнаружили ошибку при вашей регистрации. Просим извинения за доставленные неудобства. На данный момент все неполадки устранены. Выполните вход через логин и пароль. Воспользуйтесь функцией «Восстановить», если не помните свой пароль.";
+        Firebase::sendMultiple(User::whereIn('id', $ids)
             ->select('device_token')->pluck('device_token')->toArray('device_token'), [
             'title' => 'Saparline',
-            'body' => $message2,
+            'body' => $message,
             'type' => 'place_take',
-        ]);*/
+        ]);
     }
 }

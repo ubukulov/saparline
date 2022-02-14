@@ -325,10 +325,10 @@ class CashierController extends Controller {
 	public function getSoldTicketsForToday($tomorrow = false)
 	{
 		if ($tomorrow) {
-			$car_travel_sold_tickes_for_today = CarTravelPlace::where(['car_travel_places.status' => 'take'])
-					->selectRaw('car_travel_places.*, cars.state_number, DATE_FORMAT(car_travel.departure_time, "%d.%m.%Y") as dep_date, DATE_FORMAT(car_travel.departure_time, "%H:%i") as dep_time, DATE_FORMAT(car_travel.destination_time, "%d.%m.%Y") as des_date, DATE_FORMAT(car_travel.destination_time, "%H:%i") as des_time')
+			$car_travel_sold_tickets_for_today = CarTravelPlaceOrder::where(['car_travel_place_orders.status' => 'take'])
+					->selectRaw('car_travel_place_orders.*, cars.state_number, DATE_FORMAT(car_travel.departure_time, "%d.%m.%Y") as dep_date, DATE_FORMAT(car_travel.departure_time, "%H:%i") as dep_time, DATE_FORMAT(car_travel.destination_time, "%d.%m.%Y") as des_date, DATE_FORMAT(car_travel.destination_time, "%H:%i") as des_time, cars.car_type_id')
 					->with('driver', 'from_station', 'to_station')
-					->join('car_travel','car_travel.id','car_travel_places.car_travel_id')
+					->join('car_travel','car_travel.id','car_travel_place_orders.car_travel_id')
 					->join('cars','car_travel.car_id','cars.id')
 					//->leftJoin('company_cars','company_cars.car_id','cars.id')
 					//->leftJoin('companies', 'companies.id', 'company_cars.company_id')
@@ -338,10 +338,10 @@ class CashierController extends Controller {
 					->get();
 			//$car_travel_sold_tickes_for_today = $car_travel_sold_tickes_for_today->whereRaw("car_travel.departure_time > CURRENT_TIMESTAMP()")->get();
 		} else {
-			$car_travel_sold_tickes_for_today = CarTravelPlace::where(['car_travel_places.status' => 'take'])
-					->selectRaw('car_travel_places.*, cars.state_number, DATE_FORMAT(car_travel.departure_time, "%d.%m.%Y") as dep_date, DATE_FORMAT(car_travel.departure_time, "%H:%i") as dep_time, DATE_FORMAT(car_travel.destination_time, "%d.%m.%Y") as des_date, DATE_FORMAT(car_travel.destination_time, "%H:%i") as des_time')
+			$car_travel_sold_tickets_for_today = CarTravelPlaceOrder::where(['car_travel_place_orders.status' => 'take'])
+					->selectRaw('car_travel_place_orders.*, cars.state_number, DATE_FORMAT(car_travel.departure_time, "%d.%m.%Y") as dep_date, DATE_FORMAT(car_travel.departure_time, "%H:%i") as dep_time, DATE_FORMAT(car_travel.destination_time, "%d.%m.%Y") as des_date, DATE_FORMAT(car_travel.destination_time, "%H:%i") as des_time, cars.car_type_id')
 					->with('driver', 'from_station', 'to_station')
-					->join('car_travel','car_travel.id','car_travel_places.car_travel_id')
+					->join('car_travel','car_travel.id','car_travel_place_orders.car_travel_id')
 					->join('cars','car_travel.car_id','cars.id')
 					//->leftJoin('company_cars','company_cars.car_id','cars.id')
 					//->leftJoin('companies', 'companies.id', 'company_cars.company_id')
@@ -349,10 +349,10 @@ class CashierController extends Controller {
 					->orderBy('car_travel.id','desc')
 					->limit(100)
 					->get();
-			//$car_travel_sold_tickes_for_today = $car_travel_sold_tickes_for_today->whereDate("car_travel.departure_time", Carbon::today()->toDateString())->get();
+			//$car_travel_sold_tickets_for_today = $car_travel_sold_tickes_for_today->whereDate("car_travel.departure_time", Carbon::today()->toDateString())->get();
 		}
 
-		return response()->json($car_travel_sold_tickes_for_today);
+		return response()->json($car_travel_sold_tickets_for_today);
 	}
 
 	public function getSoldTickets()
@@ -518,5 +518,23 @@ class CashierController extends Controller {
     {
         CarTravel::destroy($car_travel_id);
         return response()->json('Success', 200);
+    }
+
+    public function getListOtherCars($car_travel_id)
+    {
+        $carTravel = CarTravel::findOrFail($car_travel_id);
+        $car = Car::findOrFail($carTravel->car_id);
+        $companyCar = CompanyCar::where(['car_id' => $car->id])->first();
+        if($companyCar) {
+            $otherCars = Car::where(['cars.is_confirmed' => 1, 'cars.car_type_id' => $car->car_type_id, 'company_cars.company_id' => $companyCar->company_id])
+                ->selectRaw('cars.*,companies.title as company_name')
+                ->join('company_cars', 'company_cars.car_id', 'cars.id')
+                ->join('companies', 'companies.id', 'company_cars.company_id')
+                ->get();
+
+            return response()->json($otherCars);
+        }
+
+        return response()->json('No lists', 404);
     }
 }

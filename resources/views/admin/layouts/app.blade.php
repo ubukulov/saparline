@@ -184,6 +184,11 @@
                         <span>Зоны отдыха</span>
                     </a>
                 </li>
+				<li>
+                    <a href="{{route('admin.soldTickets')}}">
+                        <span>Проданные билеты</span>
+                    </a>
+                </li>
 
             </ul>
         </div>

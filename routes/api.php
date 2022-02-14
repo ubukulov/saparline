@@ -42,6 +42,9 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
 		# Удалить поездку
         Route::get('intercity/{car_travel_id}/destroy', 'CashierController@destroyTravel');
+
+        # Изменить автобус (в случае когда автобус сломается)
+        Route::get('intercity/{car_travel_id}/get-list-other-cars', 'CashierController@getListOtherCars');
 	});
 
     Route::post('profile/register','UserController@register');

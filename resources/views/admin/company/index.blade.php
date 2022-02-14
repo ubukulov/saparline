@@ -36,7 +36,7 @@
                                     <td>{{$company->bin}}</td>
                                     <td>
                                         <a href="{{route('admin.company.edit',$company->id)}}" class="waves-effect btn btn-success"><i class="material-icons">mode_edit</i></a>
-                                        <a href="{{route('admin.company.destroy',$company->id)}}" onclick="return confirm('Вы уверены что хотите удалить?')" class="waves-effect btn btn-danger"><i class="material-icons">delete</i></a>
+                                        <a href="{{route('admin.companyDelete',$company->id)}}" onclick="return confirm('Вы уверены что хотите удалить?')" class="waves-effect btn btn-danger"><i class="material-icons">delete</i></a>
                                     </td>
                                 </tr>
                             @endforeach

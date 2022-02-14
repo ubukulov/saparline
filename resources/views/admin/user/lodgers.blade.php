@@ -36,7 +36,10 @@
                                     </td>
                                     <td>{{$lodger->created_at}}</td>
                                     <td>
-
+									<td>
+                                        <a href="{{route('admin.user.editLodger',$lodger->id)}}" class="waves-effect btn btn-success"><i class="material-icons">mode_edit</i></a>
+                                        <a href="{{route('admin.user.destroyLodger',$lodger->id)}}" onclick="return confirm('Вы уверены что хотите удалить?')" class="waves-effect btn btn-danger"><i class="material-icons">delete</i></a>
+                                    </td>
                                     </td>
                                 </tr>
                             @endforeach
