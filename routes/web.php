@@ -137,7 +137,10 @@ Route::name('admin.')->namespace('Admin')->group(function () {
 
         # Rest Places
         Route::resource('rest', 'RestController');
-		
+
+        # Meeting Places
+        Route::resource('meet', 'MeetController');
+
 		Route::get('sold-tickets', 'UserController@soldTickets')->name('soldTickets');
     });
 });

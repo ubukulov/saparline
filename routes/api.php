@@ -47,6 +47,21 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         Route::get('intercity/{car_travel_id}/get-list-other-cars', 'CashierController@getListOtherCars');
 	});
 
+	# Туризм
+	Route::group(['prefix' => 'tours'], function(){
+        Route::get('/get-tours-for-today', 'TourController@getToursForToday');
+        Route::get('/{tour_id}/info', 'TourController@getInfo');
+        Route::get('/{city_id}/get-resting-places', 'TourController@getRestingPlaces');
+        Route::get('/{city_id}/get-meeting-places', 'TourController@getMeetingPlaces');
+
+        # Тур компания
+        Route::post('/{tour_id}/booking-place', 'TourController@bookingPlace');
+
+        # Приложение
+        Route::post('/searching', 'TourController@searchingTour');
+        Route::post('/{tour_id}/buy-tour', 'TourController@buyTour');
+    });
+
     Route::post('profile/register','UserController@register');
     Route::post('profile/phone-confirmation','UserController@phoneConfirmation');
     Route::post('profile/login','UserController@login');
