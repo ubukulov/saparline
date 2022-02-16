@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 
 class TourController extends Controller
 {
+    protected $imgArrays;
+
     public function getToursForToday()
     {
 
@@ -44,5 +46,19 @@ class TourController extends Controller
     {
         $meeting_places = MeetPlace::where(['city_id' => $city_id])->get();
         return response()->json($meeting_places);
+    }
+
+    public function uploadPreview(Request $request)
+    {
+        foreach($request['file'] as $img) {
+            $this->uploadFile($img, 'tours');
+        }
+
+        return response()->json('success');
+    }
+
+    public function getUploadedFiles()
+    {
+        return response()->json();
     }
 }

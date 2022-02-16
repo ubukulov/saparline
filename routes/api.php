@@ -60,6 +60,10 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         # Приложение
         Route::post('/searching', 'TourController@searchingTour');
         Route::post('/{tour_id}/buy-tour', 'TourController@buyTour');
+
+        # Тур лидер
+        Route::post('/upload-preview', 'TourController@uploadPreview');
+        Route::get('/upload/get-uploaded-files', 'TourController@getUploadedFiles');
     });
 
     Route::post('profile/register','UserController@register');
