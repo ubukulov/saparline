@@ -49,21 +49,20 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
 	# Туризм
 	Route::group(['prefix' => 'tours'], function(){
-        Route::get('/get-tours-for-today', 'TourController@getToursForToday');
-        Route::get('/{tour_id}/info', 'TourController@getInfo');
+        Route::get('/get-tours', 'TourController@getTours');
+        Route::get('/{tour_id}/get-information-about-tour', 'TourController@getInformationAboutTour');
         Route::get('/{city_id}/get-resting-places', 'TourController@getRestingPlaces');
         Route::get('/{city_id}/get-meeting-places', 'TourController@getMeetingPlaces');
-
-        # Тур компания
-        Route::post('/{tour_id}/booking-place', 'TourController@bookingPlace');
+        Route::get('/{tour_id}/get-all-places-for-tour', 'TourController@getAllPlacesForTour');
+        Route::get('/{tour_id}/get-sold-tickets-for-current-tour', 'TourController@getSoldTicketsForCurrentTour');
+        Route::post('/{tour_id}/reservation', 'TourController@tourReservation');
 
         # Приложение
         Route::post('/searching', 'TourController@searchingTour');
-        Route::post('/{tour_id}/buy-tour', 'TourController@buyTour');
 
         # Тур лидер
         Route::post('/upload-preview', 'TourController@uploadPreview');
-        Route::get('/upload/get-uploaded-files', 'TourController@getUploadedFiles');
+        Route::post('/create', 'TourController@tourCreate');
     });
 
     Route::post('profile/register','UserController@register');

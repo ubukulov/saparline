@@ -34,4 +34,14 @@ class Tour extends Model
     {
         return $this->belongsTo(Car::class);
     }
+
+    public function images()
+    {
+        return $this->hasMany(TourImage::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(TourOrder::class);
+    }
 }

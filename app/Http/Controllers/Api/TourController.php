@@ -3,37 +3,48 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Car;
+use App\Models\CarType;
 use App\Models\MeetPlace;
 use App\Models\RestPlace;
+use App\Models\Tour;
+use App\Models\TourImage;
+use App\Models\TourOrder;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TourController extends Controller
 {
-    protected $imgArrays;
-
-    public function getToursForToday()
+    public function getTours()
     {
-
+        $tours = Tour::whereDate('tours.departure_time', Carbon::today()->toDateString())
+            ->with('city', 'resting_place', 'meeting_place', 'car', 'images')
+            ->get();
+        return response()->json($tours);
     }
 
-    public function getInfo($tour_id)
+    public function getInformationAboutTour($tour_id)
     {
-
+        $tour = Tour::whereId($tour_id)
+            ->with('city', 'resting_place', 'meeting_place', 'car', 'images')
+            ->first();
+        return response()->json($tour);
     }
 
-    public function bookingPlace(Request $request)
-    {
-
-    }
-
+    # Поиск тура
     public function searchingTour(Request $request)
     {
+        $data = $request->all();
+        $city_id = $data['city_id'];
+        $resting_place_id = $data['resting_place_id'];
+        $departure_time = $data['departure_time'];
 
-    }
-
-    public function buyTour(Request $request)
-    {
-
+        $tours = Tour::where(['city_id' => $city_id, 'resting_place_id' => $resting_place_id])
+                ->with('city', 'resting_place', 'meeting_place', 'car', 'images')
+                ->whereDate('departure_time', $departure_time)
+                ->get();
+        return response()->json($tours);
     }
 
     public function getRestingPlaces($city_id)
@@ -57,8 +68,113 @@ class TourController extends Controller
         return response()->json('success');
     }
 
-    public function getUploadedFiles()
+    public function tourCreate(Request $request)
     {
-        return response()->json();
+        $data = $request->except('images');
+        $data['departure_time'] = Carbon::create($data['departure_time'])->format('Y-m-d H:i:s');
+        $data['destination_time'] = Carbon::create($data['destination_time'])->format('Y-m-d H:i:s');
+        $resting_place = RestPlace::findOrFail($data['resting_place_id']);
+        $data['title'] = $resting_place->title;
+        DB::beginTransaction();
+        try {
+            $tour = Tour::create($data);
+
+            foreach($request['images'] as $img) {
+                $filename = $this->uploadFile($img, 'tours');
+                TourImage::create([
+                    'tour_id' => $tour->id, 'image' => $filename
+                ]);
+            }
+
+            $car = Car::findOrFail($tour->car_id);
+            $carType = CarType::find($car->car_type_id);
+
+            for ($i = 1; $i <= $carType->count_places; $i++){
+                TourOrder::create([
+                    'tour_id' => $tour->id, 'number' => $i, 'status' => 'free'
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json('Success');
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return response()->json("Server error: ".$exception, 500);
+        }
+    }
+
+    public function getAllPlacesForTour($tour_id)
+    {
+        $tour_places = TourOrder::where(['tour_id' => $tour_id])
+            ->get();
+        return response()->json($tour_places);
+    }
+
+    public function getSoldTicketsForCurrentTour($tour_id)
+    {
+        $tour_places = TourOrder::where(['tour_id' => $tour_id, 'status' => 'take'])
+            ->get();
+        return response()->json($tour_places);
+    }
+
+    public function tourReservation(Request $request, $tour_id)
+    {
+        $data = $request->all();
+        $place_number = $data['place_number'];
+        $first_name = $data['first_name'];
+        $phone = str_replace(' ', '', $data['phone']);
+        $iin = $data['iin'];
+        $passenger_id = (isset($data['passenger_id'])) ? $data['passenger_id'] : null;
+
+        if ($this->checkingForDoubleIin($tour_id, $iin)) {
+            return response()->json("С таким $iin уже продано билет. Укажите другой ИИН", 409);
+        }
+
+        if ($this->checkingForPhone($tour_id, $phone)) {
+            return response()->json("В одном поездке может только 4 раза повторяется телефон. Укажите другой", 409);
+        }
+        $tour = Tour::findOrFail($tour_id);
+        $tourOrder = TourOrder::where(['tour_id' => $tour_id, 'number' => $place_number])->first();
+        if($tourOrder){
+            if($tourOrder->status == 'free'){
+                $tourOrder->passenger_id = $passenger_id;
+                $tourOrder->status = 'in_process';
+                $tourOrder->first_name = $first_name;
+                $tourOrder->phone = $phone;
+                $tourOrder->iin = $iin;
+                if(is_null($passenger_id)) {
+                    $tourOrder->price = $tour->seat_price;
+                } else {
+                    $tourOrder->price = $tour->tour_price;
+                }
+                $tourOrder->booking_time = Carbon::now();
+                $tourOrder->save();
+                return response()->json("Место забронирован", 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            }
+
+            if($tourOrder->status == 'in_process'){
+                return response()->json("Место уже забронирован", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            }
+
+            if($tourOrder->status == 'take'){
+                return response()->json("Место продано", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            }
+
+        } else {
+            return response()->json("Данные не найдены", 404, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+    public function checkingForDoubleIin($tour_id, $iin)
+    {
+        $result = TourOrder::where(['tour_id' => $tour_id, 'iin' => $iin])->first();
+        return ($result) ? true : false;
+    }
+
+    public function checkingForPhone($tour_id, $phone)
+    {
+        $result = TourOrder::where(['tour_id' => $tour_id, 'phone' => $phone])->get();
+        return (count($result) >= 4) ? true : false;
     }
 }
