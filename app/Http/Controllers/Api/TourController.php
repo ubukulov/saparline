@@ -19,16 +19,37 @@ class TourController extends Controller
     public function getTours()
     {
         $tours = Tour::whereDate('tours.departure_time', Carbon::today()->toDateString())
-            ->with('city', 'resting_place', 'meeting_place', 'car', 'images')
+            ->with('city', 'resting_place', 'meeting_place', 'car', 'images', 'orders')
             ->get();
-        return response()->json($tours);
+        $items = collect();
+        foreach ($tours as $tour) {
+            $tour['stats'] = $tour->getOrderStats();
+            $items->push($tour);
+        }
+        return response()->json($items);
+    }
+
+    public function tourDestroy($tour_id)
+    {
+        $tour = Tour::findOrFail($tour_id);
+        foreach($tour->images as $item) {
+            $path = public_path() . '/' .$item->image;
+            if(file_exists($path)) {
+                unlink($path);
+            }
+        }
+
+        Tour::destroy($tour_id);
+
+        return response()->json('Success');
     }
 
     public function getInformationAboutTour($tour_id)
     {
         $tour = Tour::whereId($tour_id)
-            ->with('city', 'resting_place', 'meeting_place', 'car', 'images')
+            ->with('city', 'resting_place', 'meeting_place', 'car', 'images', 'orders')
             ->first();
+        $tour['stats'] = $tour->getOrderStats();
         return response()->json($tour);
     }
 
@@ -176,5 +197,26 @@ class TourController extends Controller
     {
         $result = TourOrder::where(['tour_id' => $tour_id, 'phone' => $phone])->get();
         return (count($result) >= 4) ? true : false;
+    }
+
+    public function getFreePlacesForBooking($tour_id, $count)
+    {
+        $tour = Tour::findOrFail($tour_id);
+        return response()->json($tour->getFreePlaceForBooking($count));
+    }
+
+    public function bookingByTourCompany(Request $request, $tour_id)
+    {
+        $data = $request->all();
+        $tour = Tour::findOrFail($tour_id);
+        foreach($data['listBookingPlaces'] as $item) {
+            $item = json_decode($item);
+            $order = TourOrder::findOrFail($item->id);
+            $item->status = 'in_process';
+            $item->price = $tour->seat_price;
+            $item->booking_time = Carbon::now();
+            $order->update((array)$item);
+        }
+        return response()->json('success');
     }
 }

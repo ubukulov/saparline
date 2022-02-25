@@ -44,4 +44,27 @@ class Tour extends Model
     {
         return $this->hasMany(TourOrder::class);
     }
+
+    public function getOrderStats()
+    {
+        $orders = $this->orders;
+        $arr['countSoldPlaces'] = 0;
+        $arr['countFreePlaces'] = 0;
+        foreach($orders as $order){
+            if($order->status == 'take') $arr['countSoldPlaces'] += 1;
+            if($order->status == 'free') $arr['countFreePlaces'] += 1;
+        }
+        return $arr;
+    }
+
+    public function getFreePlaceForBooking($count)
+    {
+        $orders = $this->orders;
+        $free_places = collect();
+        foreach($orders as $order) {
+            if(count($free_places) == $count) break;
+            if($order->status == 'free') $free_places->push($order);
+        }
+        return $free_places;
+    }
 }

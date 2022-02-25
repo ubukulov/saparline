@@ -56,6 +56,11 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         Route::get('/{tour_id}/get-all-places-for-tour', 'TourController@getAllPlacesForTour');
         Route::get('/{tour_id}/get-sold-tickets-for-current-tour', 'TourController@getSoldTicketsForCurrentTour');
         Route::post('/{tour_id}/reservation', 'TourController@tourReservation');
+        Route::get('/{tour_id}/destroy', 'TourController@tourDestroy');
+
+        # Туркомпания
+        Route::get('/{tour_id}/get-free-places-for-booking/{count}', 'TourController@getFreePlacesForBooking');
+        Route::post('/{tour_id}/booking-by-tour-company', 'TourController@bookingByTourCompany');
 
         # Приложение
         Route::post('/searching', 'TourController@searchingTour');
