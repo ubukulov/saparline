@@ -45,6 +45,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
         # Изменить автобус (в случае когда автобус сломается)
         Route::get('intercity/{car_travel_id}/get-list-other-cars', 'CashierController@getListOtherCars');
+        Route::post('intercity/{car_travel_id}/change-car-for-current-travel', 'CashierController@changeCarForCurrentTravel');
 	});
 
 	# Туризм

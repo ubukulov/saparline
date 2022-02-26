@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\CashierResource;
 use App\Models\Cashier;
 use App\Models\CompanyCar;
+use App\Models\User;
+use App\Packages\Firebase;
 use Illuminate\Http\Request;
 use App\Models\Company;
 use Illuminate\Support\Facades\Hash;
@@ -536,5 +538,64 @@ class CashierController extends Controller {
         }
 
         return response()->json('No lists', 404);
+    }
+
+    public function changeCarForCurrentTravel(Request $request, $car_travel_id)
+    {
+        $car_id = $request->input('car_id');
+        $car = Car::findOrFail($car_id);
+        $carTravel = CarTravel::findOrFail($car_travel_id);
+        DB::beginTransaction();
+        try {
+            $carTravel->car_id = $car->id;
+            $carTravel->save();
+
+            $carTravelOrder = CarTravelOrder::where(['car_travel_id' => $carTravel->id])->first();
+            if ($carTravelOrder) {
+                $carTravelOrder->driver_id = $car->user_id;
+                $carTravelOrder->save();
+            }
+
+            $carTravelPlace = CarTravelPlace::where(['car_travel_id' => $carTravel->id])->first();
+            if ($carTravelPlace) {
+                CarTravelPlace::where(['car_travel_id' => $carTravel->id])
+                    ->update([
+                        'driver_id' => $car->user_id
+                    ]);
+            }
+
+            $carTravelPlaceOrder = CarTravelPlaceOrder::where(['car_travel_id' => $carTravel->id])->first();
+            if($carTravelPlaceOrder) {
+                CarTravelPlaceOrder::where(['car_travel_id' => $carTravel->id])
+                    ->update([
+                        'driver_id' => $car->user_id
+                    ]);
+            }
+
+            $carTravelPlaces = CarTravelPlace::where(['car_travel_id' => $carTravel->id, 'status' => 'take'])
+                ->whereNotNull('passenger_id')
+                ->get();
+            if($carTravelPlaces) {
+                foreach($carTravelPlaces as $carTravelPlace) {
+                    $message = "Уважаемый пользователь, по вашему поездку автобус изменилься! Просим извинения за доставленные неудобства.";
+                    Firebase::sendMultiple(User::where('id', $carTravelPlace->passenger_id)
+                        ->where('push', 1)
+                        ->select('device_token')
+                        ->pluck('device_token')
+                        ->toArray(), [
+                        'title' => 'Saparline',
+                        'body' => $message,
+                        'type' => 'change_car',
+                        'user_id' => $carTravelPlace->passenger_id,
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return response()->json('success');
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            return response()->json('Server error:' . $exception, 500);
+        }
     }
 }
