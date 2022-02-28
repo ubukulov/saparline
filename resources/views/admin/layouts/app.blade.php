@@ -195,6 +195,12 @@
                     </a>
                 </li>
 
+                <li>
+                    <a href="{{route('admin.agent.index')}}">
+                        <span>Список агентов</span>
+                    </a>
+                </li>
+
             </ul>
         </div>
         <!-- #Menu -->

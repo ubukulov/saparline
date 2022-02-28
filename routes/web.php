@@ -141,6 +141,9 @@ Route::name('admin.')->namespace('Admin')->group(function () {
         # Meeting Places
         Route::resource('meet', 'MeetController');
 
+        # Agents
+        Route::resource('agent', 'AgentController');
+
 		Route::get('sold-tickets', 'UserController@soldTickets')->name('soldTickets');
     });
 });

@@ -9,7 +9,7 @@ class TourOrder extends Model
     protected $table = 'tour_orders';
 
     protected $fillable = [
-        'tour_id', 'passenger_id', 'number', 'status', 'price', 'first_name', 'phone', 'iin', 'reason_for_return',
+        'tour_id', 'passenger_id', 'agent_id', 'number', 'status', 'price', 'first_name', 'phone', 'iin', 'reason_for_return',
         'booking_time'
     ];
 
