@@ -127,9 +127,24 @@ class TourController extends Controller
 
     public function getAllPlacesForTour($tour_id)
     {
-        $tour_places = TourOrder::where(['tour_id' => $tour_id])
+        /*$tour_places = TourOrder::where(['tour_id' => $tour_id])
             ->get();
-        return response()->json($tour_places);
+        return response()->json($tour_places);*/
+
+        /*$rules = [
+            'tour_id' => 'required|exists:tours,id',
+        ];
+        $messages = [
+        ];
+        $validator = $this->validator($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->first(), 400,
+                ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+        }*/
+        $data['tour'] = Tour::find($tour_id);
+        $data['places'] = TourOrder::where(['tour_id' => $tour_id])->get();
+
+        return response()->json($data, 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
     }
 
     public function getSoldTicketsForCurrentTour($tour_id)
@@ -141,22 +156,103 @@ class TourController extends Controller
 
     public function tourReservation(Request $request, $tour_id)
     {
+        $rules = [
+            'tour_id' => 'required|exists:tours,id',
+            'places' => 'required|array|between:1,4',
+        ];
         $data = $request->all();
-        $place_number = $data['place_number'];
+        /*$place_number = $data['place_number'];
         $first_name = $data['first_name'];
         $phone = str_replace(' ', '', $data['phone']);
         $iin = $data['iin'];
-        $passenger_id = (isset($data['passenger_id'])) ? $data['passenger_id'] : null;
+        $passenger_id = (isset($data['passenger_id'])) ? $data['passenger_id'] : null;*/
 
-        if ($this->checkingForDoubleIin($tour_id, $iin)) {
-            return response()->json("С таким $iin уже продано билет. Укажите другой ИИН", 409);
+        /**
+        $request['places'] = [
+            [
+                'first_name' => 'User1',
+                'phone' => '7772225522',
+                'iin' => '887745210221',
+                'place_number' => 15,
+                'agent_id' => 15,
+                'passenger_id' => 15,
+            ],
+            [
+                'first_name' => 'User2',
+                'phone' => '7772225222',
+                'iin' => '887745210231',
+                'place_number' => 18,
+                'agent_id' => 15,
+                'passenger_id' => 15,
+            ],
+            [
+                'first_name' => 'User2',
+                'phone' => '7772225222',
+                'iin' => '887745210241',
+                'place_number' => 16,
+                'agent_id' => 15,
+                'passenger_id' => 15,
+            ]
+        ];
+         **/
+
+        $messages = [];
+        $validator = $this->validator($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->first(), 400, ['charset' => 'utf-8'],
+                JSON_UNESCAPED_UNICODE);
         }
 
-        if ($this->checkingForPhone($tour_id, $phone)) {
-            return response()->json("В одном поездке может только 4 раза повторяется телефон. Укажите другой", 409);
-        }
+
         $tour = Tour::findOrFail($tour_id);
-        $tourOrder = TourOrder::where(['tour_id' => $tour_id, 'number' => $place_number])->first();
+        foreach ($data['places'] as $item) {
+            $place_number = $item['place_number'];
+            $first_name = $item['first_name'];
+            $phone = str_replace(' ', '', $item['phone']);
+            $iin = $item['iin'];
+            $passenger_id = (isset($item['passenger_id'])) ? $item['passenger_id'] : null;
+            $agent_id = (isset($item['agent_id'])) ? $item['agent_id'] : null;
+
+            if ($this->checkingForDoubleIin($tour_id, $iin)) {
+                return response()->json("С таким $iin уже продано билет. Укажите другой ИИН", 409);
+            }
+
+            if ($this->checkingForPhone($tour_id, $phone)) {
+                return response()->json("В одном поездке может только 4 раза повторяется телефон. Укажите другой", 409);
+            }
+
+            $tourOrder = TourOrder::where(['tour_id' => $tour_id, 'number' => $place_number])->first();
+            if($tourOrder){
+                if($tourOrder->status == 'free'){
+                    $tourOrder->passenger_id = $passenger_id;
+                    $tourOrder->agent_id = $agent_id;
+                    $tourOrder->status = 'in_process';
+                    $tourOrder->first_name = $first_name;
+                    $tourOrder->phone = $phone;
+                    $tourOrder->iin = $iin;
+                    if(is_null($passenger_id)) {
+                        $tourOrder->price = $tour->seat_price;
+                    } else {
+                        $tourOrder->price = $tour->tour_price;
+                    }
+                    $tourOrder->booking_time = Carbon::now();
+                    $tourOrder->save();
+                    return response()->json("Место забронирован", 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+                }
+
+                if($tourOrder->status == 'in_process'){
+                    return response()->json("Место уже забронирован", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+                }
+
+                if($tourOrder->status == 'take'){
+                    return response()->json("Место продано", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+                }
+
+            } else {
+                return response()->json("Данные не найдены", 404, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            }
+        }
+        /*$tourOrder = TourOrder::where(['tour_id' => $tour_id, 'number' => $place_number])->first();
         if($tourOrder){
             if($tourOrder->status == 'free'){
                 $tourOrder->passenger_id = $passenger_id;
@@ -184,7 +280,7 @@ class TourController extends Controller
 
         } else {
             return response()->json("Данные не найдены", 404, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
-        }
+        }*/
     }
 
     public function checkingForDoubleIin($tour_id, $iin)
