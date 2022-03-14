@@ -18,7 +18,7 @@ class TourController extends Controller
 {
     public function getTours()
     {
-        $tours = Tour::whereDate('tours.departure_time', Carbon::today()->toDateString())
+        $tours = Tour::whereDate('tours.departure_time', '>=', Carbon::today()->toDateString())
             ->with('city', 'resting_place', 'meeting_place', 'car', 'images', 'orders')
             ->get();
         $items = collect();
