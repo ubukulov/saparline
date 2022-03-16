@@ -529,6 +529,7 @@ class CashierController extends Controller {
         $companyCar = CompanyCar::where(['car_id' => $car->id])->first();
         if($companyCar) {
             $otherCars = Car::where(['cars.is_confirmed' => 1, 'cars.car_type_id' => $car->car_type_id, 'company_cars.company_id' => $companyCar->company_id])
+                ->where('cars.id', '!=', $car->id)
                 ->selectRaw('cars.*,companies.title as company_name')
                 ->join('company_cars', 'company_cars.car_id', 'cars.id')
                 ->join('companies', 'companies.id', 'company_cars.company_id')
