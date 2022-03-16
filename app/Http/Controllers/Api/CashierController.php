@@ -598,4 +598,23 @@ class CashierController extends Controller {
             return response()->json('Server error:' . $exception, 500);
         }
     }
+
+    public function getListPlacesForChangePrices($car_travel_id)
+    {
+        $carTravelPlaces = CarTravelPlace::where(['car_travel_id' => $car_travel_id, 'status' => 'free'])
+            ->get();
+        return response()->json($carTravelPlaces);
+    }
+
+    public function changingPricesForCurrentTravel(Request $request)
+    {
+        foreach($request->input('places') as $item) {
+            $item = json_decode($item);
+            if(isset($item->new_price)) {
+                CarTravelPlace::where(['id' => $item->id])->update(['price' => $item->new_price]);
+            }
+        }
+
+        return response()->json('Success');
+    }
 }

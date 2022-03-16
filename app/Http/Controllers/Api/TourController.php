@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Car;
 use App\Models\CarType;
+use App\Models\City;
 use App\Models\MeetPlace;
 use App\Models\RestPlace;
 use App\Models\Tour;
@@ -141,7 +142,7 @@ class TourController extends Controller
             return response()->json($validator->errors()->first(), 400,
                 ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }*/
-        $data['tour'] = Tour::find($tour_id);
+        $data['tour'] = Tour::where('id',$tour_id)->with('car', 'resting_place', 'meeting_place', 'city')->first();
         $data['places'] = TourOrder::where(['tour_id' => $tour_id])->get();
 
         return response()->json($data, 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
@@ -314,5 +315,11 @@ class TourController extends Controller
             $order->update((array)$item);
         }
         return response()->json('success');
+    }
+
+    public function getCities()
+    {
+        $cities = City::where('id', 1)->get();
+        return response()->json($cities);
     }
 }

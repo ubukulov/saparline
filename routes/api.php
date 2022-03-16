@@ -46,6 +46,10 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         # Изменить автобус (в случае когда автобус сломается)
         Route::get('intercity/{car_travel_id}/get-list-other-cars', 'CashierController@getListOtherCars');
         Route::post('intercity/{car_travel_id}/change-car-for-current-travel', 'CashierController@changeCarForCurrentTravel');
+
+        # Изменить цены
+        Route::get('intercity/{car_travel_id}/get-list-places-for-change-prices', 'CashierController@getListPlacesForChangePrices');
+        Route::post('intercity/changing-prices-for-current-travel', 'CashierController@changingPricesForCurrentTravel');
 	});
 
 	# Туризм
@@ -58,6 +62,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         Route::get('/{tour_id}/get-sold-tickets-for-current-tour', 'TourController@getSoldTicketsForCurrentTour');
         Route::post('/{tour_id}/reservation', 'TourController@tourReservation');
         Route::get('/{tour_id}/destroy', 'TourController@tourDestroy');
+        Route::get('get-cities', 'TourController@getCities');
 
         # Туркомпания
         Route::get('/{tour_id}/get-free-places-for-booking/{count}', 'TourController@getFreePlacesForBooking');
