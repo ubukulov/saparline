@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Car;
 use App\Models\CarType;
+use App\Models\Cashier;
 use App\Models\City;
 use App\Models\MeetPlace;
 use App\Models\RestPlace;
@@ -321,5 +322,11 @@ class TourController extends Controller
     {
         $cities = City::where('id', 1)->get();
         return response()->json($cities);
+    }
+
+    public function getAgency()
+    {
+        $agencies = Cashier::where(['type_id' => 2])->get();
+        return response()->json($agencies);
     }
 }

@@ -63,6 +63,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         Route::post('/{tour_id}/reservation', 'TourController@tourReservation');
         Route::get('/{tour_id}/destroy', 'TourController@tourDestroy');
         Route::get('get-cities', 'TourController@getCities');
+        Route::get('get-agencies', 'TourController@getAgency');
 
         # Туркомпания
         Route::get('/{tour_id}/get-free-places-for-booking/{count}', 'TourController@getFreePlacesForBooking');

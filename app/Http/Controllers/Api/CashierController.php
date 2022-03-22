@@ -119,8 +119,7 @@ class CashierController extends Controller {
 	public function createTripByCashier(Request $request)
 	{
 		$data = $request->all();
-		$data['departure_time'] = Carbon::create($data['departure_time'])->format('Y-m-d H:i:s');
-		$data['destination_time'] = Carbon::create($data['destination_time'])->format('Y-m-d H:i:s');
+		$dateTimes = json_decode($data['date_times']);
 
 		DB::beginTransaction();
 
@@ -134,61 +133,61 @@ class CashierController extends Controller {
             ->select('travel.*')
             ->first();
 
+			foreach($dateTimes as $dateTime) {
+                $departure_time = Carbon::create($dateTime->departure_time)->format('Y-m-d H:i:s');
+                $destination_time = Carbon::create($dateTime->destination_time)->format('Y-m-d H:i:s');
 
-			$carTravel = new CarTravel();
+                $carTravel = new CarTravel();
 
-			$carTravel->from_station_id = $request['from_station_id'];
-			$carTravel->to_station_id = $request['to_station_id'];
-			$carTravel->departure_time = $data['departure_time'];
-			$carTravel->destination_time = $data['destination_time'];
-			$carTravel->travel_id = $travel ? $travel->id : null;
-			$carTravel->from_city_id = $data['from_city_id'];
-			$carTravel->to_city_id = $data['to_city_id'];
-			$carTravel->car_id = $data['car_id'];
-			$carTravel->save();
+                $carTravel->from_station_id = $request['from_station_id'];
+                $carTravel->to_station_id = $request['to_station_id'];
+                $carTravel->departure_time = $departure_time;
+                $carTravel->destination_time = $destination_time;
+                $carTravel->travel_id = $travel ? $travel->id : null;
+                $carTravel->from_city_id = $data['from_city_id'];
+                $carTravel->to_city_id = $data['to_city_id'];
+                $carTravel->car_id = $data['car_id'];
+                $carTravel->save();
 
-			if (Station::where('id',$data['from_station_id'])->exists()){
-				$travelStation = new CarTravelStation();
-				$travelStation->car_travel_id = $carTravel->id;
-				$travelStation->station_id = $data['from_station_id'];
-				$travelStation->save();
-			} else{
-				return response()->json('station_id error',400,['charset'=>'utf-8'],JSON_UNESCAPED_UNICODE);
-			}
+                if (Station::where('id',$data['from_station_id'])->exists()){
+                    $travelStation = new CarTravelStation();
+                    $travelStation->car_travel_id = $carTravel->id;
+                    $travelStation->station_id = $data['from_station_id'];
+                    $travelStation->save();
+                } else{
+                    return response()->json('station_id error',400,['charset'=>'utf-8'],JSON_UNESCAPED_UNICODE);
+                }
 
-			if (Station::where('id',$data['to_station_id'])->exists()){
-				$travelStation = new CarTravelStation();
-				$travelStation->car_travel_id = $carTravel->id;
-				$travelStation->station_id = $data['to_station_id'];
-				$travelStation->save();
-			} else{
-				return response()->json('station_id error',400,['charset'=>'utf-8'],JSON_UNESCAPED_UNICODE);
-			}
+                if (Station::where('id',$data['to_station_id'])->exists()){
+                    $travelStation = new CarTravelStation();
+                    $travelStation->car_travel_id = $carTravel->id;
+                    $travelStation->station_id = $data['to_station_id'];
+                    $travelStation->save();
+                } else{
+                    return response()->json('station_id error',400,['charset'=>'utf-8'],JSON_UNESCAPED_UNICODE);
+                }
 
+                $car = Car::findOrFail($data['car_id']);
+                $carType = CarType::find($car->car_type_id);
 
+                for ($i = 1 ; $i <= $carType->count_places; $i++){
+                    $travelPlace = new CarTravelPlace();
+                    $travelPlace->car_travel_id = $carTravel->id;
+                    $travelPlace->driver_id = $car->user_id;
+                    $travelPlace->number = $i;
+                    $travelPlace->from_station_id = $request['from_station_id'];
+                    $travelPlace->to_station_id = $request['to_station_id'];
+                    $travelPlace->save();
+                }
 
-			$car = Car::findOrFail($data['car_id']);
-			$carType = CarType::find($car->car_type_id);
-
-			for ($i = 1 ; $i <= $carType->count_places; $i++){
-				$travelPlace = new CarTravelPlace();
-				$travelPlace->car_travel_id = $carTravel->id;
-				$travelPlace->driver_id = $car->user_id;
-				$travelPlace->number = $i;
-				$travelPlace->from_station_id = $request['from_station_id'];
-				$travelPlace->to_station_id = $request['to_station_id'];
-				$travelPlace->save();
-			}
-
-
-
-			foreach (json_decode($request['price_places']) as $place_price) {
-				CarTravelPlace::where('car_travel_id',$carTravel->id)
-					->whereBetween('number',[$place_price->from,$place_price->to])
-					->update([
-						'price' => $place_price->price
-					]);
-			}
+                foreach (json_decode($request['price_places']) as $place_price) {
+                    CarTravelPlace::where('car_travel_id',$carTravel->id)
+                        ->whereBetween('number',[$place_price->from,$place_price->to])
+                        ->update([
+                            'price' => $place_price->price
+                        ]);
+                }
+            }
 
 			DB::commit();
 
@@ -609,6 +608,19 @@ class CashierController extends Controller {
 
     public function changingPricesForCurrentTravel(Request $request)
     {
+        $data = $request->all();
+        $carTravel = CarTravel::findOrFail($data['carTravelId']);
+
+        if(isset($data['departure_time'])) {
+            $carTravel->departure_time = Carbon::create($data['departure_time'])->format('Y-m-d H:i:s');
+            $carTravel->save();
+        }
+
+        if(isset($data['destination_time'])) {
+            $carTravel->destination_time = Carbon::create($data['destination_time'])->format('Y-m-d H:i:s');
+            $carTravel->save();
+        }
+
         foreach($request->input('places') as $item) {
             $item = json_decode($item);
             if(isset($item->new_price)) {
