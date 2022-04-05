@@ -22,6 +22,7 @@ class TourController extends Controller
     {
         $tours = Tour::whereDate('tours.departure_time', '>=', Carbon::today()->toDateString())
             ->with('city', 'resting_place', 'meeting_place', 'car', 'images', 'orders')
+            ->orderBy('departure_time')
             ->get();
         $items = collect();
         foreach ($tours as $tour) {
@@ -63,10 +64,34 @@ class TourController extends Controller
         $resting_place_id = $data['resting_place_id'];
         $departure_time = $data['departure_time'];
 
+        //return response()->json($carbon->addDays(9)->toDateString());
+
         $tours = Tour::where(['city_id' => $city_id, 'resting_place_id' => $resting_place_id])
                 ->with('city', 'resting_place', 'meeting_place', 'car', 'images')
-                ->whereDate('departure_time', $departure_time)
+                ->whereDate('departure_time', '=', $departure_time)
                 ->get();
+
+        if (count($tours) == 0) {
+            $year = (int) date('Y', strtotime($departure_time));
+            $month = (int) date('m', strtotime($departure_time));
+            $day = (int) date('d', strtotime($departure_time));
+            $carbon = Carbon::create($year, $month, $day);
+
+            $tours = Tour::where(['city_id' => $city_id, 'resting_place_id' => $resting_place_id])
+                ->with('city', 'resting_place', 'meeting_place', 'car', 'images')
+                ->whereDate('departure_time', '>=', $departure_time)
+                ->whereDate('departure_time', '<=', $carbon->addDays(9)->toDateString())
+                ->orderBy('departure_time')
+                ->get();
+            if(count($tours) > 0) {
+                return response()->json("Самый ближайший тур есть на: " . date('d.m.Y', strtotime($tours[0]->departure_time)),400,
+                    ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            } else {
+                return response()->json("Туры не найдено. Скоро появиться:)",400,
+                    ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            }
+        }
+
         return response()->json($tours);
     }
 
@@ -328,5 +353,53 @@ class TourController extends Controller
     {
         $agencies = Cashier::where(['type_id' => 2])->get();
         return response()->json($agencies);
+    }
+
+    public function getMyTickets(Request $request)
+    {
+        $places = TourOrder::join('tours', 'tour_orders.tour_id', 'tours.id')
+            ->join('cities','cities.id','tours.city_id')
+            ->join('resting_places','resting_places.id','tours.resting_place_id')
+            ->join('cars', 'cars.id', 'tours.car_id')
+            ->join('car_types','cars.car_type_id','car_types.id')
+            ->join('users as driver','driver.id','cars.user_id')
+            ->leftJoin('users as passenger','passenger.id','tour_orders.passenger_id')
+            ->leftJoin('users as agent','agent.id','tour_orders.agent_id')
+
+//            ->join('stations as from_station', 'from_station.id', 'car_travel.from_station_id')
+//            ->join('cities as from_city', 'from_city.id', 'from_station.city_id')
+//            ->join('stations as to_station', 'to_station.id', 'car_travel.to_station_id')
+//            ->join('cities as to_city', 'to_city.id', 'to_station.city_id')
+//            ->join('cars', 'car_travel.car_id', 'cars.id')
+//            ->join('car_types', 'cars.car_type_id', 'car_types.id')
+//            ->join('users', 'users.id', 'car_travel_place_orders.driver_id')
+            ->where('tour_orders.passenger_id', $request['user']->id)
+            ->whereRaw("tours.destination_time > CURRENT_TIMESTAMP()")
+            ->whereIn('tour_orders.status', ['take', 'in_process'])
+            ->select(
+                'tour_orders.id',
+                'tour_orders.number',
+                'tour_orders.price',
+                'tour_orders.status',
+                'tours.departure_time',
+                'tours.destination_time',
+                'cities.name as from_city',
+                //'from_station.name as from_station',
+                'resting_places.title as to_city',
+                //'to_station.name as to_station',
+                'cars.state_number as car_state_number',
+                'car_types.name as car_type',
+                'car_types.count_places as car_type_count_places',
+                'driver.phone as phone_number',
+                'driver.bank_card',
+                'driver.card_fullname',
+                'tour_orders.first_name',
+                'tour_orders.phone',
+                'tour_orders.iin'
+            )
+            ->orderBy('tour_orders.id', 'desc')
+            ->get();
+
+        return response()->json($places);
     }
 }

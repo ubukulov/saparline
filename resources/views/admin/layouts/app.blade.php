@@ -201,6 +201,12 @@
                     </a>
                 </li>
 
+                <li>
+                    <a href="{{route('admin.tour.index')}}">
+                        <span>Список билеты (туризм)</span>
+                    </a>
+                </li>
+
             </ul>
         </div>
         <!-- #Menu -->

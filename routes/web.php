@@ -145,5 +145,10 @@ Route::name('admin.')->namespace('Admin')->group(function () {
         Route::resource('agent', 'AgentController');
 
 		Route::get('sold-tickets', 'UserController@soldTickets')->name('soldTickets');
+
+		# Билеты на туризм
+        Route::get('tours/tickets', 'TourController@index')->name('tour.index');
+        Route::get('tours/ticket/{id}/take', 'TourController@orderTake')->name('tour.orderTake');
+        Route::get('tours/ticket/{id}/reject', 'TourController@orderReject')->name('tour.orderReject');
     });
 });
