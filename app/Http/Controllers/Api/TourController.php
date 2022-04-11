@@ -83,12 +83,17 @@ class TourController extends Controller
                 ->whereDate('departure_time', '<=', $carbon->addDays(9)->toDateString())
                 ->orderBy('departure_time')
                 ->get();
+
             if(count($tours) > 0) {
                 return response()->json("Самый ближайший тур есть на: " . date('d.m.Y', strtotime($tours[0]->departure_time)),400,
                     ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
             } else {
                 return response()->json("Туры не найдено. Скоро появиться:)",400,
                     ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            }
+        } else {
+            foreach($tours as $tour) {
+                $tour['stats'] = $tour->getOrderStats();
             }
         }
 
