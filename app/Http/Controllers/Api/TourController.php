@@ -64,8 +64,6 @@ class TourController extends Controller
         $resting_place_id = $data['resting_place_id'];
         $departure_time = $data['departure_time'];
 
-        //return response()->json($carbon->addDays(9)->toDateString());
-
         $tours = Tour::where(['city_id' => $city_id, 'resting_place_id' => $resting_place_id])
                 ->with('city', 'resting_place', 'meeting_place', 'car', 'images')
                 ->whereDate('departure_time', '=', $departure_time)
@@ -93,7 +91,7 @@ class TourController extends Controller
             }
         } else {
             foreach($tours as $tour) {
-                $tour['stats'] = $tour->getOrderStats();
+                $tour['countFreePlaces'] = $tour->getCountFreePlaces();
             }
         }
 
@@ -189,7 +187,7 @@ class TourController extends Controller
     public function tourReservation(Request $request, $tour_id)
     {
         $rules = [
-            'tour_id' => 'required|exists:tours,id',
+            //'tour_id' => 'required|exists:tours,id',
             'places' => 'required|array|between:1,4',
         ];
         $data = $request->all();
@@ -238,6 +236,19 @@ class TourController extends Controller
 
         $tour = Tour::findOrFail($tour_id);
         foreach ($data['places'] as $item) {
+            if(gettype($item) == 'string') {
+                $str = substr($item,1);
+                $str = substr($str,0, strlen($str)-1);
+                $arr = explode(',', $str);
+                $arr1 = [];
+                foreach($arr as $tt){
+                    $ss = explode('=>', $tt);
+                    $arr1[str_replace("'",'', trim($ss[0]))] = str_replace("'", '', trim($ss[1]));
+                }
+
+                $item = $arr1;
+            }
+
             $place_number = $item['place_number'];
             $first_name = $item['first_name'];
             $phone = str_replace(' ', '', $item['phone']);
@@ -360,7 +371,7 @@ class TourController extends Controller
         return response()->json($agencies);
     }
 
-    public function getMyTickets(Request $request)
+    public function getMyTickets($user_id)
     {
         $places = TourOrder::join('tours', 'tour_orders.tour_id', 'tours.id')
             ->join('cities','cities.id','tours.city_id')
@@ -378,7 +389,7 @@ class TourController extends Controller
 //            ->join('cars', 'car_travel.car_id', 'cars.id')
 //            ->join('car_types', 'cars.car_type_id', 'car_types.id')
 //            ->join('users', 'users.id', 'car_travel_place_orders.driver_id')
-            ->where('tour_orders.passenger_id', $request['user']->id)
+            ->where('tour_orders.passenger_id', $user_id)
             ->whereRaw("tours.destination_time > CURRENT_TIMESTAMP()")
             ->whereIn('tour_orders.status', ['take', 'in_process'])
             ->select(

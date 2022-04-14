@@ -57,6 +57,17 @@ class Tour extends Model
         return $arr;
     }
 
+    public function getCountFreePlaces()
+    {
+        //$orders = $this->orders;
+        $orders = TourOrder::where('tour_id', $this->id)->get();
+        $countFreePlaces = 0;
+        foreach($orders as $order){
+            if($order->status == 'free') $countFreePlaces += 1;
+        }
+        return $countFreePlaces;
+    }
+
     public function getFreePlaceForBooking($count)
     {
         $orders = $this->orders;
