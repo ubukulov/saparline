@@ -53,6 +53,7 @@ class TourController extends Controller
             ->with('city', 'resting_place', 'meeting_place', 'car', 'images', 'orders')
             ->first();
         $tour['stats'] = $tour->getOrderStats();
+        $tour['cars'] = $tour->getCars();
         return response()->json($tour);
     }
 
@@ -92,6 +93,7 @@ class TourController extends Controller
         } else {
             foreach($tours as $tour) {
                 $tour['countFreePlaces'] = $tour->getCountFreePlaces();
+                $tour['cars'] = $tour->getCars();
             }
         }
 
@@ -189,6 +191,7 @@ class TourController extends Controller
         $rules = [
             //'tour_id' => 'required|exists:tours,id',
             'places' => 'required|array|between:1,4',
+            'car_id' => 'required|exists:cars,id'
         ];
         $data = $request->all();
         /*$place_number = $data['place_number'];
@@ -264,7 +267,7 @@ class TourController extends Controller
                 return response()->json("В одном поездке может только 4 раза повторяется телефон. Укажите другой", 409);
             }
 
-            $tourOrder = TourOrder::where(['tour_id' => $tour_id, 'number' => $place_number])->first();
+            $tourOrder = TourOrder::where(['tour_id' => $tour_id, 'number' => $place_number, 'car_id' => $data['car_id']])->first();
             if($tourOrder){
                 if($tourOrder->status == 'free'){
                     $tourOrder->passenger_id = $passenger_id;
@@ -425,7 +428,8 @@ class TourController extends Controller
         $rules = [
             'tour_id' => 'required|exists:tours,id',
             'number' => 'required',
-            'reason_for_return' => 'required'
+            'reason_for_return' => 'required',
+            'car_id' => 'required|exists:cars,id'
         ];
         $messages = [
         ];
@@ -435,7 +439,7 @@ class TourController extends Controller
                 ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
 
-        $tourOrder = TourOrder::where(['tour_id' => $data['tour_id'], 'number' => $data['number']])->first();
+        $tourOrder = TourOrder::where(['tour_id' => $data['tour_id'], 'number' => $data['number'], 'car_id' => $data['car_id']])->first();
         if($tourOrder) {
             $tourOrder->reason_for_return = $data['reason_for_return'];
             $tourOrder->status = 'cancel';
@@ -447,5 +451,34 @@ class TourController extends Controller
             return response()->json("Не найден запись", 400,
                 ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
+    }
+
+    public function getListOtherCars($tour_id)
+    {
+        $tour = Tour::findOrFail($tour_id);
+        $car = Car::findOrFail($tour->car_id);
+        $otherCars = Car::where(['cars.is_confirmed' => 1, 'cars.car_type_id' => $car->car_type_id])
+            ->where('cars.id', '!=', $car->id)
+            ->get();
+
+        return response()->json($otherCars);
+    }
+
+    public function addOtherCar(Request $request)
+    {
+        $tour_id = $request->input('tour_id');
+        $car_id = $request->input('car_id');
+
+        $tour = Tour::findOrFail($tour_id);
+        $car = Car::findOrFail($car_id);
+        $carType = CarType::find($car->car_type_id);
+
+        for ($i = 1; $i <= $carType->count_places; $i++){
+            TourOrder::create([
+                'tour_id' => $tour->id, 'number' => $i, 'status' => 'free', 'car_id' => $car->id
+            ]);
+        }
+
+        return response()->json('success');
     }
 }

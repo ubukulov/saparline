@@ -78,4 +78,18 @@ class Tour extends Model
         }
         return $free_places;
     }
+
+    public function getCars()
+    {
+        $orders = TourOrder::where('tour_id', $this->id)
+            ->get();
+        $cars = [];
+        foreach($orders as $order) {
+            if (!array_key_exists($order->car_id, $cars)) {
+                $car = Car::find($order->car_id);
+                $cars[$order->car_id] = $car;
+            }
+        }
+        return array_values($cars);
+    }
 }

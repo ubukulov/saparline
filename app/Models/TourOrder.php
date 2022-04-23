@@ -22,6 +22,11 @@ class TourOrder extends Model
         return $this->belongsTo(Tour::class);
     }
 
+    public function car()
+    {
+        return $this->belongsTo(Car::class);
+    }
+
     public function passenger()
     {
         return $this->belongsTo(User::class);
