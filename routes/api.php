@@ -72,6 +72,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         # Приложение
         Route::post('/searching', 'TourController@searchingTour');
         Route::get('/{user_id}/my-tickets', 'TourController@getMyTickets');
+        Route::post('cancel-ticket', 'TourController@cancelTicket');
 
         # Тур лидер
         Route::post('/upload-preview', 'TourController@uploadPreview');

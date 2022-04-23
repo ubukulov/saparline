@@ -142,7 +142,7 @@ class TourController extends Controller
 
             for ($i = 1; $i <= $carType->count_places; $i++){
                 TourOrder::create([
-                    'tour_id' => $tour->id, 'number' => $i, 'status' => 'free'
+                    'tour_id' => $tour->id, 'number' => $i, 'status' => 'free', 'car_id' => $car->id
                 ]);
             }
 
@@ -417,5 +417,35 @@ class TourController extends Controller
             ->get();
 
         return response()->json($places);
+    }
+
+    public function cancelTicket(Request $request)
+    {
+        $data = $request->all();
+        $rules = [
+            'tour_id' => 'required|exists:tours,id',
+            'number' => 'required',
+            'reason_for_return' => 'required'
+        ];
+        $messages = [
+        ];
+        $validator = $this->validator($data, $rules, $messages);
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->first(), 400,
+                ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+        }
+
+        $tourOrder = TourOrder::where(['tour_id' => $data['tour_id'], 'number' => $data['number']])->first();
+        if($tourOrder) {
+            $tourOrder->reason_for_return = $data['reason_for_return'];
+            $tourOrder->status = 'cancel';
+            $tourOrder->save();
+
+            return response()->json("Success", 200,
+                ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+        } else {
+            return response()->json("Не найден запись", 400,
+                ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+        }
     }
 }
