@@ -174,7 +174,17 @@ class TourController extends Controller
                 ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }*/
         $data['tour'] = Tour::where('id',$tour_id)->with('car', 'resting_place', 'meeting_place', 'city')->first();
-        $data['places'] = TourOrder::where(['tour_id' => $tour_id])->get();
+        //$data['places'] = TourOrder::where(['tour_id' => $tour_id])->get();
+        $places = TourOrder::where(['tour_id' => $tour_id])->get();
+        $arr = [];
+        foreach($places as $place){
+            if(array_key_exists($place->car_id, $arr)) {
+                $arr[$place->car_id][] = $place;
+            } else {
+                $arr[$place->car_id][] = $place;
+            }
+        }
+        $data['places'] = $arr;
 
         return response()->json($data, 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
     }

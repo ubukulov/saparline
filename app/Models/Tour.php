@@ -84,11 +84,32 @@ class Tour extends Model
         $orders = TourOrder::where('tour_id', $this->id)
             ->get();
         $cars = [];
-        foreach($orders as $order) {
-            if (!array_key_exists($order->car_id, $cars)) {
+        $car_id = 0;
+        $carPrev = collect();
+        $prev_car_id = &$car_id;
+        foreach($orders as $i=>$order) {
+            if($order->car_id != $car_id) {
                 $car = Car::find($order->car_id);
+                $carPrev->collect();
+                $carPrev->put('car', $car);
+                $car = $carPrev->get('car');
+            } else {
+                $car = $carPrev->get('car');
+            }
+
+            if (!array_key_exists($order->car_id, $cars)) {
+                $car['countSoldPlaces'] = 0;
+                $car['countFreePlaces'] = 0;
+                if($order->status == 'take') $car->countSoldPlaces += 1;
+                if($order->status == 'free') $car->countFreePlaces += 1;
+
+                $cars[$order->car_id] = $car;
+            } else {
+                if($order->status == 'take') $car['countSoldPlaces'] += 1;
+                if($order->status == 'free') $car['countFreePlaces'] += 1;
                 $cars[$order->car_id] = $car;
             }
+            $prev_car_id = $order->car_id;
         }
         return array_values($cars);
     }

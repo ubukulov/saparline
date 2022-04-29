@@ -207,6 +207,12 @@
                     </a>
                 </li>
 
+                <li>
+                    <a href="{{route('admin.tour.returnTickets')}}">
+                        <span>Вернуть билеты (туризм)</span>
+                    </a>
+                </li>
+
             </ul>
         </div>
         <!-- #Menu -->
