@@ -29,7 +29,7 @@ class TourController extends Controller
             $tour['stats'] = $tour->getOrderStats();
             $items->push($tour);
         }
-        return response()->json($items);
+        return response()->json($items, 200, ['charset' => 'utf-8'],JSON_UNESCAPED_UNICODE);
     }
 
     public function tourDestroy($tour_id)
@@ -54,7 +54,7 @@ class TourController extends Controller
             ->first();
         $tour['stats'] = $tour->getOrderStats();
         $tour['cars'] = $tour->getCars();
-        return response()->json($tour);
+        return response()->json($tour, 200, ['charset' => 'utf-8'],JSON_UNESCAPED_UNICODE);
     }
 
     # Поиск тура
@@ -270,11 +270,13 @@ class TourController extends Controller
             $agent_id = (isset($item['agent_id'])) ? $item['agent_id'] : null;
 
             if ($this->checkingForDoubleIin($tour_id, $iin)) {
-                return response()->json("С таким $iin уже продано билет. Укажите другой ИИН", 409);
+                return response()->json("С таким $iin уже продано билет. Укажите другой ИИН", 409, ['charset' => 'utf-8'],
+                    JSON_UNESCAPED_UNICODE);
             }
 
             if ($this->checkingForPhone($tour_id, $phone)) {
-                return response()->json("В одном поездке может только 4 раза повторяется телефон. Укажите другой", 409);
+                return response()->json("В одном поездке может только 4 раза повторяется телефон. Укажите другой", 409, ['charset' => 'utf-8'],
+                    JSON_UNESCAPED_UNICODE);
             }
 
             $tourOrder = TourOrder::where(['tour_id' => $tour_id, 'number' => $place_number, 'car_id' => $data['car_id']])->first();
@@ -429,37 +431,40 @@ class TourController extends Controller
             ->orderBy('tour_orders.id', 'desc')
             ->get();
 
-        return response()->json($places);
+        return response()->json($places, 200, ['charset' => 'utf-8'],JSON_UNESCAPED_UNICODE);
     }
 
     public function cancelTicket(Request $request)
     {
         $data = $request->all();
-        $rules = [
+        /*$rules = [
             'tour_id' => 'required|exists:tours,id',
             'number' => 'required',
             'reason_for_return' => 'required',
             'car_id' => 'required|exists:cars,id'
+        ];*/
+
+        $rules = [
+            'place_id' => 'required|exists:tour_orders,id',
+            'reason_for_return' => 'required',
         ];
         $messages = [
         ];
         $validator = $this->validator($data, $rules, $messages);
         if ($validator->fails()) {
-            return response()->json($validator->errors()->first(), 400,
-                ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            return response()->json($validator->errors()->first(), 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
 
-        $tourOrder = TourOrder::where(['tour_id' => $data['tour_id'], 'number' => $data['number'], 'car_id' => $data['car_id']])->first();
+        //$tourOrder = TourOrder::where(['tour_id' => $data['tour_id'], 'number' => $data['number'], 'car_id' => $data['car_id']])->first();
+        $tourOrder = TourOrder::findOrFail($data['place_id']);
         if($tourOrder) {
             $tourOrder->reason_for_return = $data['reason_for_return'];
             $tourOrder->status = 'cancel';
             $tourOrder->save();
 
-            return response()->json("Success", 200,
-                ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            return response()->json("Success", 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         } else {
-            return response()->json("Не найден запись", 400,
-                ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            return response()->json("Не найден запись", 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
     }
 

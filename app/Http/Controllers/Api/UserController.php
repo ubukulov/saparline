@@ -1276,6 +1276,8 @@ class UserController extends Controller
         $messages = [
 
         ];
+        $data = $request->all();
+        $reason_for_return = (isset($data['reason_for_return'])) ? $data['reason_for_return'] : null;
         $validator = $this->validator($request->all(), $rules, $messages);
         if ($validator->fails()) {
             return response()->json($validator->errors()->first(), 400, ['charset' => 'utf-8'],
@@ -1295,7 +1297,8 @@ class UserController extends Controller
             ->where('car_travel_id', $place->car_travel_id)
             ->where('number', $place->number)
             ->update([
-                'status' => 'cancel'
+                'status' => 'cancel',
+                'reason_for_return' => $reason_for_return
             ]);
 
         return response()->json('success', 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
