@@ -173,7 +173,8 @@ class TourController extends Controller
             return response()->json($validator->errors()->first(), 400,
                 ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }*/
-        $data['tour'] = Tour::where('id',$tour_id)->with('car', 'resting_place', 'meeting_place', 'city')->first();
+        $tour = Tour::where('id',$tour_id)->with('car', 'resting_place', 'meeting_place', 'city')->first();
+        $data['tour'] = $tour;
         //$data['places'] = TourOrder::where(['tour_id' => $tour_id])->get();
         $places = TourOrder::where(['tour_id' => $tour_id])->get();
         $arr = [];
@@ -184,7 +185,17 @@ class TourController extends Controller
                 $arr[$place->car_id][] = $place;
             }
         }
-        $data['places'] = $arr;
+
+        $newArr = [];
+        foreach($arr as $key=>$item){
+            $newArr[] = [
+                'car_id' => $key,
+                'countFreePlaces' => $tour->getCountFreePlacesByCar($key),
+                'places' => $item
+            ];
+        }
+
+        $data['places'] = $newArr;
 
         return response()->json($data, 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
     }
@@ -391,7 +402,7 @@ class TourController extends Controller
         $places = TourOrder::join('tours', 'tour_orders.tour_id', 'tours.id')
             ->join('cities','cities.id','tours.city_id')
             ->join('resting_places','resting_places.id','tours.resting_place_id')
-            ->join('cars', 'cars.id', 'tours.car_id')
+            ->join('cars', 'cars.id', 'tour_orders.car_id')
             ->join('car_types','cars.car_type_id','car_types.id')
             ->join('users as driver','driver.id','cars.user_id')
             ->leftJoin('users as passenger','passenger.id','tour_orders.passenger_id')
@@ -405,7 +416,7 @@ class TourController extends Controller
 //            ->join('car_types', 'cars.car_type_id', 'car_types.id')
 //            ->join('users', 'users.id', 'car_travel_place_orders.driver_id')
             ->where('tour_orders.passenger_id', $user_id)
-            ->whereRaw("tours.destination_time > CURRENT_TIMESTAMP()")
+            //->whereRaw("tours.destination_time > CURRENT_TIMESTAMP()")
             ->whereIn('tour_orders.status', ['take', 'in_process'])
             ->select(
                 'tour_orders.id',
