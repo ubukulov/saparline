@@ -1271,7 +1271,8 @@ class UserController extends Controller
     function placeCancel(Request $request)
     {
         $rules = [
-            'place_id' => 'required|exists:car_travel_places,id',
+            //'place_id' => 'required|exists:car_travel_places,id',
+            'place_id' => 'required|exists:car_travel_place_orders,id',
         ];
         $messages = [
 
@@ -1280,11 +1281,10 @@ class UserController extends Controller
         $reason_for_return = (isset($data['reason_for_return'])) ? $data['reason_for_return'] : null;
         $validator = $this->validator($request->all(), $rules, $messages);
         if ($validator->fails()) {
-            return response()->json($validator->errors()->first(), 400, ['charset' => 'utf-8'],
-                JSON_UNESCAPED_UNICODE);
+            return response()->json($validator->errors()->first(), 400, ['charset' => 'utf-8'],JSON_UNESCAPED_UNICODE);
         }
 
-        $place = CarTravelPlace::find($request['place_id']);
+        /*$place = CarTravelPlace::find($request['place_id']);
         $place->status = 'cancel';
         $place->save();
 
@@ -1299,10 +1299,22 @@ class UserController extends Controller
             ->update([
                 'status' => 'cancel',
                 'reason_for_return' => $reason_for_return
-            ]);
+            ]);*/
+
+        $place = CarTravelPlaceOrder::findOrFail($request['place_id']);
+        $place->status = 'cancel';
+        $place->reason_for_return = $reason_for_return;
+        $place->save();
+
+        $carTravelPlace = CarTravelPlace::where(['car_travel_id' => $place->car_travel_id, 'number' => $place->number])->first();
+        $carTravelPlace->status = 'cancel';
+        $carTravelPlace->save();
+
+        $carTravel = CarTravel::where('id', $place->car_travel_id)->first();
+        $carTravel['full'] = 0;
+        $carTravel->update();
 
         return response()->json('success', 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
-
     }
 
     //Driver

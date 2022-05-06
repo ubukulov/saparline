@@ -259,6 +259,7 @@ class TourController extends Controller
 
 
         $tour = Tour::findOrFail($tour_id);
+
         foreach ($data['places'] as $item) {
             if(gettype($item) == 'string') {
                 $str = substr($item,1);
@@ -292,6 +293,14 @@ class TourController extends Controller
 
             $tourOrder = TourOrder::where(['tour_id' => $tour_id, 'number' => $place_number, 'car_id' => $data['car_id']])->first();
             if($tourOrder){
+                if($tourOrder->status == 'in_process'){
+                    return response()->json("Место уже забронирован", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+                }
+
+                if($tourOrder->status == 'take'){
+                    return response()->json("Место продано", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+                }
+
                 if($tourOrder->status == 'free'){
                     $tourOrder->passenger_id = $passenger_id;
                     $tourOrder->agent_id = $agent_id;
@@ -306,50 +315,13 @@ class TourController extends Controller
                     }
                     $tourOrder->booking_time = Carbon::now();
                     $tourOrder->save();
-                    return response()->json("Место забронирован", 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
                 }
-
-                if($tourOrder->status == 'in_process'){
-                    return response()->json("Место уже забронирован", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
-                }
-
-                if($tourOrder->status == 'take'){
-                    return response()->json("Место продано", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
-                }
-
             } else {
                 return response()->json("Данные не найдены", 404, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
             }
         }
-        /*$tourOrder = TourOrder::where(['tour_id' => $tour_id, 'number' => $place_number])->first();
-        if($tourOrder){
-            if($tourOrder->status == 'free'){
-                $tourOrder->passenger_id = $passenger_id;
-                $tourOrder->status = 'in_process';
-                $tourOrder->first_name = $first_name;
-                $tourOrder->phone = $phone;
-                $tourOrder->iin = $iin;
-                if(is_null($passenger_id)) {
-                    $tourOrder->price = $tour->seat_price;
-                } else {
-                    $tourOrder->price = $tour->tour_price;
-                }
-                $tourOrder->booking_time = Carbon::now();
-                $tourOrder->save();
-                return response()->json("Место забронирован", 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
-            }
 
-            if($tourOrder->status == 'in_process'){
-                return response()->json("Место уже забронирован", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
-            }
-
-            if($tourOrder->status == 'take'){
-                return response()->json("Место продано", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
-            }
-
-        } else {
-            return response()->json("Данные не найдены", 404, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
-        }*/
+        return response()->json("success", 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
     }
 
     public function checkingForDoubleIin($tour_id, $iin)
@@ -416,7 +388,7 @@ class TourController extends Controller
 //            ->join('car_types', 'cars.car_type_id', 'car_types.id')
 //            ->join('users', 'users.id', 'car_travel_place_orders.driver_id')
             ->where('tour_orders.passenger_id', $user_id)
-            //->whereRaw("tours.destination_time > CURRENT_TIMESTAMP()")
+            ->whereRaw("tours.destination_time > CURRENT_TIMESTAMP()")
             ->whereIn('tour_orders.status', ['take', 'in_process'])
             ->select(
                 'tour_orders.id',
