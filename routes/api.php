@@ -65,6 +65,9 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         Route::get('get-cities', 'TourController@getCities');
         Route::get('get-agencies', 'TourController@getAgency');
 
+        Route::get('{tour_id}/get-list-other-cars', 'TourController@getListOtherCars');
+        Route::post('{tour_id}/add-other-car', 'TourController@addOtherCar');
+
         # Туркомпания
         Route::get('/{tour_id}/get-free-places-for-booking/{count}', 'TourController@getFreePlacesForBooking');
         Route::post('/{tour_id}/booking-by-tour-company', 'TourController@bookingByTourCompany');
@@ -72,6 +75,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         # Приложение
         Route::post('/searching', 'TourController@searchingTour');
         Route::get('/{user_id}/my-tickets', 'TourController@getMyTickets');
+        Route::post('cancel-ticket', 'TourController@cancelTicket');
 
         # Тур лидер
         Route::post('/upload-preview', 'TourController@uploadPreview');

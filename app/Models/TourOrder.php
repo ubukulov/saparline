@@ -9,7 +9,7 @@ class TourOrder extends Model
     protected $table = 'tour_orders';
 
     protected $fillable = [
-        'tour_id', 'passenger_id', 'agent_id', 'number', 'status', 'price', 'first_name', 'phone', 'iin', 'reason_for_return',
+        'tour_id', 'car_id', 'passenger_id', 'agent_id', 'number', 'status', 'price', 'first_name', 'phone', 'iin', 'reason_for_return',
         'booking_time'
     ];
 
@@ -20,6 +20,11 @@ class TourOrder extends Model
     public function tour()
     {
         return $this->belongsTo(Tour::class);
+    }
+
+    public function car()
+    {
+        return $this->belongsTo(Car::class);
     }
 
     public function passenger()

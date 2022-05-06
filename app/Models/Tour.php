@@ -68,6 +68,16 @@ class Tour extends Model
         return $countFreePlaces;
     }
 
+    public function getCountFreePlacesByCar($car_id)
+    {
+        $orders = TourOrder::where(['tour_id' => $this->id, 'car_id' => $car_id])->get();
+        $countFreePlaces = 0;
+        foreach($orders as $order){
+            if($order->status == 'free') $countFreePlaces += 1;
+        }
+        return $countFreePlaces;
+    }
+
     public function getFreePlaceForBooking($count)
     {
         $orders = $this->orders;
@@ -77,5 +87,40 @@ class Tour extends Model
             if($order->status == 'free') $free_places->push($order);
         }
         return $free_places;
+    }
+
+    public function getCars()
+    {
+        $orders = TourOrder::where('tour_id', $this->id)
+            ->get();
+        $cars = [];
+        $car_id = 0;
+        $carPrev = collect();
+        $prev_car_id = &$car_id;
+        foreach($orders as $i=>$order) {
+            if($order->car_id != $car_id) {
+                $car = Car::find($order->car_id);
+                $carPrev->collect();
+                $carPrev->put('car', $car);
+                $car = $carPrev->get('car');
+            } else {
+                $car = $carPrev->get('car');
+            }
+
+            if (!array_key_exists($order->car_id, $cars)) {
+                $car['countSoldPlaces'] = 0;
+                $car['countFreePlaces'] = 0;
+                if($order->status == 'take') $car->countSoldPlaces += 1;
+                if($order->status == 'free') $car->countFreePlaces += 1;
+
+                $cars[$order->car_id] = $car;
+            } else {
+                if($order->status == 'take') $car['countSoldPlaces'] += 1;
+                if($order->status == 'free') $car['countFreePlaces'] += 1;
+                $cars[$order->car_id] = $car;
+            }
+            $prev_car_id = $order->car_id;
+        }
+        return array_values($cars);
     }
 }
