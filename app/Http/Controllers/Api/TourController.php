@@ -257,11 +257,11 @@ class TourController extends Controller
             $agent_id = (isset($item['agent_id'])) ? $item['agent_id'] : null;
 
             if ($this->checkingForDoubleIin($tour_id, $iin)) {
-                return response()->json("С таким $iin уже продано билет. Укажите другой ИИН", 409);
+                return response()->json("С таким $iin уже продано билет. Укажите другой ИИН", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
             }
 
             if ($this->checkingForPhone($tour_id, $phone)) {
-                return response()->json("В одном поездке может только 4 раза повторяется телефон. Укажите другой", 409);
+                return response()->json("В одном поездке может только 4 раза повторяется телефон. Укажите другой", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
             }
 
             $tourOrder = TourOrder::where(['tour_id' => $tour_id, 'number' => $place_number])->first();
