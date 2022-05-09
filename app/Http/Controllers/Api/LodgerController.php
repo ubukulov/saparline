@@ -80,7 +80,7 @@ class LodgerController extends Controller
             "place_number"  => 'required',
             "first_name"    => 'required',
             "phone"         => 'required',
-            "iin"           => 'required|min:12|max:12'
+            //"iin"           => 'required|min:12|max:12'
         ];
 
         $messages = [
