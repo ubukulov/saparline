@@ -100,9 +100,9 @@ class LodgerController extends Controller
         $place_number = $data['place_number'];
         $first_name = $data['first_name'];
         $phone = str_replace(' ', '', $data['phone']);
-        $iin = $data['iin'];
+        $iin = (isset($data['iin'])) ? $data['iin'] : null;
 
-        if ($this->checkingForDoubleIin($car_travel_id, $iin)) {
+        if ($iin && $this->checkingForDoubleIin($car_travel_id, $iin)) {
             return response()->json("С таким $iin уже продано билет. Укажите другой ИИН", 409, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
 
