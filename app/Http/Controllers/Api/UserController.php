@@ -1422,7 +1422,8 @@ class UserController extends Controller
         $places = CarTravelPlaceOrder::where('car_travel_place_orders.status', 'take')
             ->join('car_travel', 'car_travel_place_orders.car_travel_id', 'car_travel.id')
             ->join('cars', 'car_travel.car_id', 'cars.id')
-            ->whereRaw("DATE(car_travel.destination_time) > NOW()")
+            //->whereRaw("DATE(car_travel.destination_time) > NOW()")
+            ->whereRaw("car_travel.destination_time  >= CURRENT_TIMESTAMP()")
             ->select('car_travel_place_orders.*');
             //->whereNotNull('passenger_id')
 
