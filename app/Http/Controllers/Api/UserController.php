@@ -2082,5 +2082,19 @@ class UserController extends Controller
     {
         return $request['user']->confirmation;
     }
+
+    public function getPricesForDirections(Request $request)
+    {
+        $fromCityId = $request->input('from_city_id');
+        $toCityId   = $request->input('to_city_id');
+        $carId      = $request->input('car_id');
+        $carTravel = CarTravel::where(['car_id' => $carId, 'from_city_id' => $fromCityId, 'to_city_id' => $toCityId])->first();
+        if($carTravel) {
+            $carTravelPlaces = CarTravelPlace::where(['car_travel_id' => $carTravel->id])->get();
+            return response()->json($carTravelPlaces);
+        } else {
+            return response('No places or direction is wrong', 400);
+        }
+    }
 }
 

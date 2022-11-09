@@ -119,6 +119,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{route('admin.user.drivers')}}">
+                        <span>Цена на билеты</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{route('admin.car_travel.cancelOrders')}}">
                         <span>Вернуть билеты</span>
                     </a>

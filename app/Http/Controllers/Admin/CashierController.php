@@ -17,7 +17,7 @@ class CashierController extends Controller
     {
         $cashiers = Cashier::orderBy('id', 'DESC')
             ->with('city', 'station')
-            ->where(['type_id' => 1])
+            //->where(['type_id' => 1])
             ->get();
         return view('admin.cashier.index', compact('cashiers'));
     }

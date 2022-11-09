@@ -24,6 +24,7 @@
                                 <th>Станция</th>
                                 <th>Компания</th>
                                 <th>Активный</th>
+                                <th>Тип</th>
                                 <th>Дата</th>
                             </tr>
                             </thead>
@@ -39,6 +40,12 @@
                                     <td>{{$cashier->company_name}}</td>
                                     <td>
                                         @if($cashier->active == 1) Да @else Нет @endif
+                                    </td>
+									<td>
+                                        @if($cashier->type_id == 1) Кассир @endif
+                                        @if($cashier->type_id == 2) Агент @endif
+                                        @if($cashier->type_id == 3) Тур фирма @endif
+                                        @if($cashier->type_id == 4) Тур лидер @endif
                                     </td>
 
                                     <td>{{ $cashier->created_at->format('d.m.Y / H:i') }}</td>
