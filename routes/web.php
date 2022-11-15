@@ -152,5 +152,12 @@ Route::name('admin.')->namespace('Admin')->group(function () {
         Route::get('tours/ticket/{id}/reject', 'TourController@orderReject')->name('tour.orderReject');
         Route::get('tours/return-tickets', 'TourController@returnTickets')->name('tour.returnTickets');
         Route::get('tours/{id}/cancel-order', 'TourController@cancelOrder')->name('tour.cancelOrder');
+
+        # Цены на билеты по направлениям
+        Route::name('direction.')->prefix('direction-prices')->group(function(){
+            Route::get('/', 'DirectionPriceController@index')->name('index');
+            Route::get('/create', 'DirectionPriceController@create')->name('create');
+            Route::post('/store', 'DirectionPriceController@store')->name('store');
+        });
     });
 });

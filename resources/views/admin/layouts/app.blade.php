@@ -119,7 +119,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{route('admin.user.drivers')}}">
+                    <a href="{{route('admin.direction.index')}}">
                         <span>Цена на билеты</span>
                     </a>
                 </li>
