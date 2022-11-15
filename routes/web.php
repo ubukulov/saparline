@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 Route::name('admin.')->namespace('Admin')->group(function () {
     Route::any('admin', 'MainController@login')->name("login");
     Route::group(['prefix' => 'admin', 'middleware' => 'adminCheck'], function () {

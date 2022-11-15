@@ -25,6 +25,23 @@ class DirectionPriceController extends Controller
 
     public function store(Request $request)
     {
+        $data = $request->except(['_token', 'data']);
+        foreach($request->input('data') as $datum) {
+            if($datum['from'] == $datum['to']) {
+                $data['price'] = $datum['price'];
+                $data['number'] = $datum['from'];
+                DirectionPrice::create($data);
+            } elseif($datum['from'] < $datum['to']) {
+                $int = (int) $datum['from'];
+                $doInt = (int) $datum['to'];
+                $data['price'] = $datum['price'];
+                for($i=$int; $i<=$doInt; $i++) {
+                    $data['number'] = $i;
+                    DirectionPrice::create($data);
+                }
+            }
+        }
 
+        return redirect()->route('admin.direction.index');
     }
 }

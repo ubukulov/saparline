@@ -23,6 +23,6 @@ class DirectionPrice extends Model
 
     public function car_type()
     {
-        return $this->belongsTo(CarType::class, 'id', 'car_type_id');
+        return $this->belongsTo(CarType::class, 'car_type_id', 'id');
     }
 }

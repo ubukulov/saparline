@@ -15,6 +15,7 @@ use App\Models\CarTravelStation;
 use App\Models\CarType;
 use App\Models\City;
 use App\Models\Company;
+use App\Models\DirectionPrice;
 use App\Models\Feedback;
 use App\Models\LodgerCar;
 use App\Models\Setting;
@@ -2088,10 +2089,11 @@ class UserController extends Controller
         $fromCityId = $request->input('from_city_id');
         $toCityId   = $request->input('to_city_id');
         $carId      = $request->input('car_id');
-        $carTravel = CarTravel::where(['car_id' => $carId, 'from_city_id' => $fromCityId, 'to_city_id' => $toCityId])->first();
-        if($carTravel) {
-            $carTravelPlaces = CarTravelPlace::where(['car_travel_id' => $carTravel->id])->get();
-            return response()->json($carTravelPlaces);
+        $car = Car::findOrFail($carId);
+        $travel = Travel::where(['from_city_id' => $fromCityId, 'to_city_id' => $toCityId])->first();
+        if($travel) {
+            $travelPlaces = DirectionPrice::where(['travel_id' => $travel->id, 'car_type_id' => $car->car_type_id])->get();
+            return response()->json($travelPlaces);
         } else {
             return response('No places or direction is wrong', 400);
         }

@@ -6,7 +6,7 @@
             <div class="card">
 
                 <div class="header">
-                    <h2 >Список агентов</h2>
+                    <h2 >Список цены по направлением</h2>
                     <a href="{{route('admin.direction.create')}}" class="btn btn-success"> <i class="material-icons">add</i></a>
                 </div>
 

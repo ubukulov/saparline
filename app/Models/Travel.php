@@ -10,11 +10,11 @@ class Travel extends Model
 
     public function from_city()
     {
-        return $this->belongsTo(City::class, 'id', 'from_city_id');
+        return $this->belongsTo(City::class, 'from_city_id', 'id');
     }
 
     public function to_city()
     {
-        return $this->belongsTo(City::class, 'id', 'to_city_id');
+        return $this->belongsTo(City::class, 'to_city_id', 'id');
     }
 }
