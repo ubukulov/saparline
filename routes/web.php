@@ -157,6 +157,8 @@ Route::name('admin.')->namespace('Admin')->group(function () {
             Route::get('/', 'DirectionPriceController@index')->name('index');
             Route::get('/create', 'DirectionPriceController@create')->name('create');
             Route::post('/store', 'DirectionPriceController@store')->name('store');
+            Route::get('{id}/edit', 'DirectionPriceController@edit')->name('edit');
+            Route::post('{id}/update', 'DirectionPriceController@update')->name('update');
         });
     });
 });

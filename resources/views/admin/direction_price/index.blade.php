@@ -18,6 +18,7 @@
                             <thead>
                             <tr>
                                 <th>ID</th>
+                                <th>Направление</th>
                                 <th>Тип транспорта</th>
                                 <th>Цена</th>
                                 <th>Количество мест</th>
@@ -28,12 +29,18 @@
                             @foreach($direction_prices as $dp)
                                 <tr>
                                     <td>{{$dp->id}}</td>
+                                    <td>
+                                        @php
+                                            $travel = $dp->travel;
+                                            echo $travel->from_city->name . " - " . $travel->to_city->name
+                                        @endphp
+                                    </td>
                                     <td>{{$dp->car_type->name}}</td>
                                     <td>{{$dp->price}}</td>
                                     <td>{{$dp->car_type->count_places}}</td>
                                     <td>
-                                        <a href="{{route('admin.agent.edit',$dp->id)}}" class="waves-effect btn btn-success"><i class="material-icons">mode_edit</i></a>
-                                        <a href="{{route('admin.agent.destroy',$dp->id)}}" onclick="return confirm('Вы уверены что хотите удалить?')" class="waves-effect btn btn-danger"><i class="material-icons">delete</i></a>
+                                        <a href="{{route('admin.direction.edit',$dp->id)}}" class="waves-effect btn btn-success"><i class="material-icons">mode_edit</i></a>
+{{--                                        <a href="{{route('admin.agent.destroy',$dp->id)}}" onclick="return confirm('Вы уверены что хотите удалить?')" class="waves-effect btn btn-danger"><i class="material-icons">delete</i></a>--}}
                                     </td>
                                 </tr>
                             @endforeach

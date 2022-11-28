@@ -44,4 +44,21 @@ class DirectionPriceController extends Controller
 
         return redirect()->route('admin.direction.index');
     }
+
+    public function edit($id)
+    {
+        $direction_price = DirectionPrice::findOrFail($id);
+        $travels = Travel::all();
+        $car_types = CarType::all();
+        return view('admin.direction_price.edit', compact('direction_price', 'travels', 'car_types'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $direction_price = DirectionPrice::findOrFail($id);
+        $price = $request->input('price');
+        $direction_price->price = $price;
+        $direction_price->save();
+        return redirect()->route('admin.direction.index');
+    }
 }
