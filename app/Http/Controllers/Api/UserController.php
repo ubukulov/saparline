@@ -622,7 +622,7 @@ class UserController extends Controller
             'to_city_id' => 'required|exists:cities,id',
             'to_station_id' => 'required|exists:stations,id',
             'departure_time' => 'required|date_format:Y-m-d H:i:s',
-            //'destination_time' => 'required|date_format:Y-m-d H:i:s',
+            'destination_time' => 'date_format:Y-m-d H:i:s',
             'stations' => 'array',
             'times' => 'array',
             "place_price" => 'required|array',
@@ -679,13 +679,15 @@ class UserController extends Controller
                 $car = Car::where('user_id', $request['user']->id)->orderBy('id')->first();
             }
 
+            $dt = Carbon::parse($departure_time);
+            $desTime = $dt->addHours(5);
             $carType = CarType::find($car->car_type_id);
             $carTravel->from_station_id = $request['from_station_id'];
             $carTravel->from_city_id = $request['from_city_id'];
             $carTravel->to_station_id = $request['to_station_id'];
             $carTravel->to_city_id = $request['to_city_id'];
             $carTravel->departure_time = $departure_time;
-            //$carTravel->destination_time = $destination_time;
+            $carTravel->destination_time = $desTime;
             $carTravel->travel_id = $travel ? $travel->id : null;
 
             $carTravel->car_id = $car->id;
