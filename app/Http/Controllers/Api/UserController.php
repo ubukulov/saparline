@@ -451,6 +451,13 @@ class UserController extends Controller
         return response()->json("Вы теперь пассажир", 200);
     }
 
+    public function deleteAccount(Request $request)
+    {
+        $user = $request['user'];
+        $user->delete();
+        return response()->json('Account successfully deleted.', 200);
+    }
+
     public function roleLodger(Request $request)
     {
         $user = $request['user'];

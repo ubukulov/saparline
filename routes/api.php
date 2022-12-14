@@ -157,5 +157,8 @@ Route::prefix('v1')->namespace('Api')->group(function () {
             Route::get('car-travel/{car_travel_id}/get-all-sold-places-for-route', 'LodgerController@getAllSoldPlacesForRoute');
             Route::post('car-travel/{car_travel_id}/multiple-selling', 'LodgerController@ticketMultipleSelling');
         });
+
+        # Delete User Account
+        Route::get('/user/delete/account', 'UserController@deleteAccount');
     });
 });
