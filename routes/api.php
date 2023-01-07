@@ -160,5 +160,11 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
         # Delete User Account
         Route::get('/user/delete/account', 'UserController@deleteAccount');
+
+        # API FOR RIDES
+        Route::group(['prefix' => 'rides'], function(){
+            Route::get('/lists', 'RideController@lists');
+            Route::post('/order', 'RideController@order');
+        });
     });
 });
