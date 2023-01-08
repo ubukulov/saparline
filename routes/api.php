@@ -165,6 +165,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         Route::group(['prefix' => 'rides'], function(){
             Route::get('/lists', 'RideController@lists');
             Route::post('/order', 'RideController@order');
+            Route::post('/change-status', 'RideController@changeStatus');
         });
     });
 });
