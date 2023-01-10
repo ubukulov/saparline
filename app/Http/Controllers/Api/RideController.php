@@ -38,4 +38,23 @@ class RideController extends Controller
             return response('status changed successfully', 200);
         }
     }
+
+    public function deleteRide($ride_id)
+    {
+        $ride = Ride::find($ride_id);
+        if($ride) {
+            Ride::destroy($ride_id);
+            return response('success', 200);
+        } else {
+            return response('already deleted', 403);
+        }
+    }
+
+    public function updateRide(Request $request, $ride_id)
+    {
+        $ride = Ride::findOrFail($ride_id);
+        $data = $request->all();
+        $ride->update($data);
+        return response('success');
+    }
 }
