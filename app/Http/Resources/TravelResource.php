@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 class TravelResource extends JsonResource
 {
 
+    /** TODO: добавить поле comments */
     public function toArray($request)
     {
         return [

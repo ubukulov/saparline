@@ -168,6 +168,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
             Route::post('/change-status', 'RideController@changeStatus');
             Route::put('/{ride_id}/update', 'RideController@updateRide');
             Route::delete('/{ride_id}/delete', 'RideController@deleteRide');
+            Route::post('/get-info-for-driver', 'RideController@getInfoForDriver');
         });
     });
 });

@@ -621,6 +621,7 @@ class UserController extends Controller
     }
 
     //Driver
+    /** TODO: реализовать сохранение комментарии от водителя, создать поле в БД */
     function travelAdd(Request $request)
     {
         $rules = [
@@ -633,7 +634,8 @@ class UserController extends Controller
             'stations' => 'array',
             'times' => 'array',
             "place_price" => 'required|array',
-            'carId' => 'exists:cars,id'
+            'carId' => 'exists:cars,id',
+            //'comments' => ''
         ];
         $messages = [
             "time.date_format" => 'Неверный формат time'
@@ -1436,6 +1438,11 @@ class UserController extends Controller
             ->whereRaw("car_travel.destination_time  >= CURRENT_TIMESTAMP()")
             ->select('car_travel_place_orders.*');
             //->whereNotNull('passenger_id')
+
+        /*$new_places = CarTravelPlaceOrder::where('car_travel_place_orders.status', 'take')->where('car_travel_place_orders.car_travel_id', '=', $request['carTravelId'])
+            ->join('car_travel', 'car_travel_place_orders.car_travel_id', 'car_travel.id')
+            ->whereRaw("car_travel.destination_time  >= CURRENT_TIMESTAMP()")
+            ->select('car_travel_place_orders.*');*/
 
         if($request['user']->role == 'driver') {
             $places = $places->where('cars.user_id', $request['user']->id);

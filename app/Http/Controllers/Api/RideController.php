@@ -57,4 +57,19 @@ class RideController extends Controller
         $ride->update($data);
         return response('success');
     }
+
+    public function getInfoForDriver(Request $request)
+    {
+        $data = $request->all();
+        $from_city_id = $data['from_city_id'];
+        $to_city_id = $data['to_city_id'];
+        $departure_date = $data['departure_date'];
+        //$departure_time = $data['departure_time'];
+
+        $rides = Ride::where(['from_city_id' => $from_city_id, 'to_city_id' => $to_city_id, 'status' => 'not'])
+                ->whereDate('departure_date', '=', $departure_date)
+                ->get();
+
+        return response()->json($rides);
+    }
 }
