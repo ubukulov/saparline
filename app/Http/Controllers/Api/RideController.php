@@ -12,7 +12,12 @@ class RideController extends Controller
     public function lists(Request $request)
     {
         $user = $request['user'];
-        $rides = $user->rides;
+        //$rides = $user->rides;
+        $rides = Ride::where(['user_id' => $user->id])
+                ->selectRaw('rides.*, from_city.name as from_city_name, to_city.name as to_city_name')
+                ->join('cities as from_city', 'from_city.id', 'rides.from_city_id')
+                ->join('cities as to_city', 'to_city.id', 'rides.to_city_id')
+                ->get();
         return response()->json($rides);
     }
 

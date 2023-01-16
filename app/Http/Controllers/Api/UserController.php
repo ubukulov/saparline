@@ -1431,20 +1431,20 @@ class UserController extends Controller
             return response()->json($validator->errors()->first(), 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
 
-        $places = CarTravelPlaceOrder::where('car_travel_place_orders.status', 'take')
+        /*$places = CarTravelPlaceOrder::where('car_travel_place_orders.status', 'take')
             ->join('car_travel', 'car_travel_place_orders.car_travel_id', 'car_travel.id')
             ->join('cars', 'car_travel.car_id', 'cars.id')
             //->whereRaw("DATE(car_travel.destination_time) > NOW()")
             ->whereRaw("car_travel.destination_time  >= CURRENT_TIMESTAMP()")
-            ->select('car_travel_place_orders.*');
+            ->select('car_travel_place_orders.*');*/
             //->whereNotNull('passenger_id')
 
-        /*$new_places = CarTravelPlaceOrder::where('car_travel_place_orders.status', 'take')->where('car_travel_place_orders.car_travel_id', '=', $request['carTravelId'])
+        $places = CarTravelPlaceOrder::where('car_travel_place_orders.status', 'take')->where('car_travel_place_orders.car_travel_id', '=', $request['carTravelId'])
             ->join('car_travel', 'car_travel_place_orders.car_travel_id', 'car_travel.id')
             ->whereRaw("car_travel.destination_time  >= CURRENT_TIMESTAMP()")
-            ->select('car_travel_place_orders.*');*/
+            ->select('car_travel_place_orders.*');
 
-        if($request['user']->role == 'driver') {
+        /*if($request['user']->role == 'driver') {
             $places = $places->where('cars.user_id', $request['user']->id);
         }
 
@@ -1455,7 +1455,7 @@ class UserController extends Controller
 
         if ($request['carId'] != null) {
             $places = $places->where('cars.id', $request['carId']);
-        }
+        }*/
 
         if($request['date_string'] != null) {
             $places = $places->whereDate('car_travel.departure_time', '=', $request['date_string']);
