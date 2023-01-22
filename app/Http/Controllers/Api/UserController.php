@@ -235,7 +235,7 @@ class UserController extends Controller
             $user->passport_image_back = isset($request['passport_image_back']) ? $this->uploadFile($request['passport_image_back'], 'images/passport') : $user->passport_image_back;
             $user->identity_image = isset($request['identity_image']) ? $this->uploadFile($request['identity_image'], 'images/identity') : $user->identity_image;
             $user->identity_image_back = isset($request['identity_image_back']) ? $this->uploadFile($request['identity_image_back'], 'images/identity') : $user->identity_image_back;
-            $user->confirmation = 'waiting';
+            //$user->confirmation = 'waiting';
             $user->save();
         }
 
@@ -761,6 +761,7 @@ class UserController extends Controller
             $carTravel->departure_time = $departure_time;
             $carTravel->destination_time = $desTime;
             $carTravel->travel_id = $travel ? $travel->id : null;
+            $carTravel->comments = (isset($request['comments']) && !empty($request['comments'])) ? $request['comments'] : null;
 
             $carTravel->car_id = $car->id;
             $carTravel->save();
