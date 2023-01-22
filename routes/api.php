@@ -113,6 +113,8 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         Route::post('profile/role/lodger','UserController@roleLodger');
         Route::get('profile/carTravels','UserController@carTravels');
         Route::get('profile/cars','UserController@cars');
+        Route::get('profile/get-images', 'UserController@getCarImages');
+        Route::post('profile/change-images', 'UserController@changeImages');
 
         Route::post('profile/addCar','UserController@addCar');
 

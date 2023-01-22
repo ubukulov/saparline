@@ -210,6 +210,69 @@ class UserController extends Controller
         return response()->json(new UserResource($user), 200);
     }
 
+    public function changeImages(Request $request)
+    {
+        $user = $request['user'];
+        $car_id = $request->input('car_id');
+        $rules = [
+            'car_avatar' => 'image',
+            'passport_image' => 'image',
+            'passport_image_back' => 'image',
+            'identity_image' => 'image',
+            'identity_image_back' => 'image',
+            'car_image' => 'image',
+            'car_image1' => 'image',
+            'car_image2' => 'image',
+        ];
+
+        $validator = $this->validator($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->first(), 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+        }
+
+        if ($user->role == 'driver') {
+            $user->passport_image = isset($request['passport_image']) ? $this->uploadFile($request['passport_image'], 'images/passport') : $user->passport_image;
+            $user->passport_image_back = isset($request['passport_image_back']) ? $this->uploadFile($request['passport_image_back'], 'images/passport') : $user->passport_image_back;
+            $user->identity_image = isset($request['identity_image']) ? $this->uploadFile($request['identity_image'], 'images/identity') : $user->identity_image;
+            $user->identity_image_back = isset($request['identity_image_back']) ? $this->uploadFile($request['identity_image_back'], 'images/identity') : $user->identity_image_back;
+            $user->confirmation = 'waiting';
+            $user->save();
+        }
+
+        $car = Car::findOrFail($car_id);
+        if($car) {
+            $car->is_confirmed = false;
+            $car->image = isset($request['car_image']) ? $this->uploadFile($request['car_image'], 'car_images') : $car->image;
+            $car->image1 = isset($request['car_image1']) ? $this->uploadFile($request['car_image1'], 'car_images') : $car->image1;
+            $car->image2 = isset($request['car_image2']) ? $this->uploadFile($request['car_image2'], 'car_images') : $car->image2;
+            $car->avatar = isset($request['car_avatar']) ? $this->uploadFile($request['car_avatar'], 'car_images') : $car->avatar;
+            $car->save();
+        } else {
+            return response('car not found', 404);
+        }
+
+        return response('success');
+    }
+
+    public function getCarImages(Request $request)
+    {
+        $user = $request['user'];
+        $car_id = $request['car_id'];
+        $car = Car::findOrFail($car_id);
+        $dataImages = [
+            'passport_image' => $user->passport_image,
+            'passport_image_back' => $user->passport_image_back,
+            'identity_image' => $user->identity_image,
+            'identity_image_back' => $user->identity_image_back,
+            'image' => $car->image,
+            'image1' => $car->image1,
+            'image2' => $car->image2,
+            'avatar' => $car->avatar,
+        ];
+
+        return response()->json($dataImages);
+    }
+
     function login(Request $request)
     {
         $rules = [

@@ -72,6 +72,7 @@ class RideController extends Controller
         //$departure_time = $data['departure_time'];
 
         $rides = Ride::where(['from_city_id' => $from_city_id, 'to_city_id' => $to_city_id, 'status' => 'not'])
+                ->with('user', 'from_city', 'to_city')
                 ->whereDate('departure_date', '=', $departure_date)
                 ->get();
 
