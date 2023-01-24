@@ -109,6 +109,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{route('admin.car.change-images')}}">
+                        <span>Заявки на изменение данных (машины)</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{route('admin.user.lodgers')}}">
                         <span>Посадчики</span>
                     </a>

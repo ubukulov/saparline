@@ -160,5 +160,13 @@ Route::name('admin.')->namespace('Admin')->group(function () {
             Route::get('{id}/edit', 'DirectionPriceController@edit')->name('edit');
             Route::post('{id}/update', 'DirectionPriceController@update')->name('update');
         });
+
+        # Изменение данных о машине
+        Route::group(['prefix' => 'change-images'], function(){
+            Route::get('/', 'CarImageController@index')->name('car.change-images');
+            Route::get('/{car_id}/show-images', 'CarImageController@show')->name('car.show-image');
+            Route::get('/{car_id}/approve-images', 'CarImageController@approveImages')->name('car.approve-images');
+            Route::get('/{car_id}/reject-images', 'CarImageController@rejectImages')->name('car.reject-images');
+        });
     });
 });

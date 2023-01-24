@@ -230,22 +230,18 @@ class UserController extends Controller
             return response()->json($validator->errors()->first(), 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
 
-        if ($user->role == 'driver') {
-            $user->passport_image = isset($request['passport_image']) ? $this->uploadFile($request['passport_image'], 'images/passport') : $user->passport_image;
-            $user->passport_image_back = isset($request['passport_image_back']) ? $this->uploadFile($request['passport_image_back'], 'images/passport') : $user->passport_image_back;
-            $user->identity_image = isset($request['identity_image']) ? $this->uploadFile($request['identity_image'], 'images/identity') : $user->identity_image;
-            $user->identity_image_back = isset($request['identity_image_back']) ? $this->uploadFile($request['identity_image_back'], 'images/identity') : $user->identity_image_back;
-            //$user->confirmation = 'waiting';
-            $user->save();
-        }
-
         $car = Car::findOrFail($car_id);
         if($car) {
-            $car->is_confirmed = false;
-            $car->image = isset($request['car_image']) ? $this->uploadFile($request['car_image'], 'car_images') : $car->image;
-            $car->image1 = isset($request['car_image1']) ? $this->uploadFile($request['car_image1'], 'car_images') : $car->image1;
-            $car->image2 = isset($request['car_image2']) ? $this->uploadFile($request['car_image2'], 'car_images') : $car->image2;
-            $car->avatar = isset($request['car_avatar']) ? $this->uploadFile($request['car_avatar'], 'car_images') : $car->avatar;
+            $car->is_confirmed = 3;
+            $data['passport_image'] = isset($request['passport_image']) && !empty($request['passport_image']) ? $this->uploadFile($request['passport_image'], 'images/passport') : null;
+            $data['passport_image_back'] = isset($request['passport_image_back']) && !empty($request['passport_image_back']) ? $this->uploadFile($request['passport_image_back'], 'images/passport') : null;
+            $data['identity_image'] = isset($request['identity_image']) && !empty($request['identity_image']) ? $this->uploadFile($request['identity_image'], 'images/identity') : null;
+            $data['identity_image_back'] = isset($request['identity_image_back']) && !empty($request['identity_image_back']) ? $this->uploadFile($request['identity_image_back'], 'images/identity') : null;
+            $data['image'] = isset($request['car_image']) && !empty($request['car_image']) ? $this->uploadFile($request['car_image'], 'car_images') : null;
+            $data['image1'] = isset($request['car_image1']) && !empty($request['car_image1']) ? $this->uploadFile($request['car_image1'], 'car_images') : null;
+            $data['image2'] = isset($request['car_image2']) && !empty($request['car_image2']) ? $this->uploadFile($request['car_image2'], 'car_images') : null;
+            $data['avatar'] = isset($request['car_avatar']) && !empty($request['car_avatar']) ? $this->uploadFile($request['car_avatar'], 'car_images') : null;
+            $car->new_images = json_encode($data);
             $car->save();
         } else {
             return response('car not found', 404);
@@ -254,21 +250,29 @@ class UserController extends Controller
         return response('success');
     }
 
+    public function getChangeImagesStatus($car_id)
+    {
+        $car = Car::findOrFail($car_id);
+        if($car->is_confirmed == 3) {
+            return response()->json('Ваш запрос в ожидании', 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+        }
+        if($car->is_confirmed == 2) {
+            return response()->json('Админ отклонил ваш запрос', 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+        }
+        if($car->is_confirmed == 1) {
+            return response()->json('Админ одобрил ваш запрос', 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+        }
+        if($car->is_confirmed == 0) {
+            return response()->json('Ваш запрос в ожидании', 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
     public function getCarImages(Request $request)
     {
         $user = $request['user'];
         $car_id = $request['car_id'];
         $car = Car::findOrFail($car_id);
-        $dataImages = [
-            'passport_image' => $user->passport_image,
-            'passport_image_back' => $user->passport_image_back,
-            'identity_image' => $user->identity_image,
-            'identity_image_back' => $user->identity_image_back,
-            'image' => $car->image,
-            'image1' => $car->image1,
-            'image2' => $car->image2,
-            'avatar' => $car->avatar,
-        ];
+        $dataImages = json_decode($car->new_images);
 
         return response()->json($dataImages);
     }
