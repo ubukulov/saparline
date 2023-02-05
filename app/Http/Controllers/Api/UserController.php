@@ -218,8 +218,8 @@ class UserController extends Controller
             'car_avatar' => 'image',
             'passport_image' => 'image',
             'passport_image_back' => 'image',
-            'identity_image' => 'image',
-            'identity_image_back' => 'image',
+            'identify_image' => 'image',
+            'identify_image_back' => 'image',
             'car_image' => 'image',
             'car_image1' => 'image',
             'car_image2' => 'image',
@@ -235,8 +235,8 @@ class UserController extends Controller
             $car->is_confirmed = 3;
             $data['passport_image'] = isset($request['passport_image']) && !empty($request['passport_image']) ? $this->uploadFile($request['passport_image'], 'images/passport') : null;
             $data['passport_image_back'] = isset($request['passport_image_back']) && !empty($request['passport_image_back']) ? $this->uploadFile($request['passport_image_back'], 'images/passport') : null;
-            $data['identity_image'] = isset($request['identity_image']) && !empty($request['identity_image']) ? $this->uploadFile($request['identity_image'], 'images/identity') : null;
-            $data['identity_image_back'] = isset($request['identity_image_back']) && !empty($request['identity_image_back']) ? $this->uploadFile($request['identity_image_back'], 'images/identity') : null;
+            $data['identify_image'] = isset($request['identify_image']) && !empty($request['identify_image']) ? $this->uploadFile($request['identify_image'], 'images/identify') : null;
+            $data['identify_image_back'] = isset($request['identify_image_back']) && !empty($request['identify_image_back']) ? $this->uploadFile($request['identify_image_back'], 'images/identify') : null;
             $data['image'] = isset($request['car_image']) && !empty($request['car_image']) ? $this->uploadFile($request['car_image'], 'car_images') : null;
             $data['image1'] = isset($request['car_image1']) && !empty($request['car_image1']) ? $this->uploadFile($request['car_image1'], 'car_images') : null;
             $data['image2'] = isset($request['car_image2']) && !empty($request['car_image2']) ? $this->uploadFile($request['car_image2'], 'car_images') : null;
@@ -254,16 +254,28 @@ class UserController extends Controller
     {
         $car = Car::findOrFail($car_id);
         if($car->is_confirmed == 3) {
-            return response()->json('Ваш запрос в ожидании', 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            return response()->json([
+                'message' => 'Ваш запрос в ожидании подтверждение фото',
+                'is_confirmed' => 3
+            ], 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
         if($car->is_confirmed == 2) {
-            return response()->json('Админ отклонил ваш запрос', 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            return response()->json([
+                'message' => 'Админ отклонил ваш запрос',
+                'is_confirmed' => 2
+            ], 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
         if($car->is_confirmed == 1) {
-            return response()->json('Админ одобрил ваш запрос', 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            return response()->json([
+                'message' => 'Админ одобрил ваш запрос',
+                'is_confirmed' => 1
+            ], 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
         if($car->is_confirmed == 0) {
-            return response()->json('Ваш запрос в ожидании', 400, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            return response()->json([
+                'message' => 'Ваш запрос в ожидании',
+                'is_confirmed' => 0
+            ], 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
     }
 
@@ -688,7 +700,6 @@ class UserController extends Controller
     }
 
     //Driver
-    /** TODO: реализовать сохранение комментарии от водителя, создать поле в БД */
     function travelAdd(Request $request)
     {
         $rules = [

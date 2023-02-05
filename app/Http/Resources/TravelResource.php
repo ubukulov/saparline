@@ -19,14 +19,13 @@ use Illuminate\Support\Facades\DB;
 
 class TravelResource extends JsonResource
 {
-
-    /** TODO: добавить поле comments */
     public function toArray($request)
     {
         return [
             'id' => $this->id,
             'departure_time' => $this->departure_time,
             'destination_time' => $this->destination_time,
+            'comments' => $this->comments,
             'car' => Car::join('users','users.id','cars.user_id')
                 ->join('car_types','car_types.id','cars.car_type_id')
                 ->select('cars.*','users.name','users.phone','car_types.name as car_type','car_types.count_places as car_type_count_places')
