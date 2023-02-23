@@ -32,4 +32,9 @@ class User extends Model
     {
         return $this->hasMany(Ride::class);
     }
+
+    public function notifications()
+    {
+        return $this->hasMany(User::class);
+    }
 }

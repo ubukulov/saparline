@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Car;
+use App\Models\CarMark;
 use App\Models\Company;
 use App\Models\CompanyCar;
 use Illuminate\Http\Request;
@@ -22,7 +23,8 @@ class CarController extends Controller
     {
         $car = Car::findOrFail($id);
         $companies = Company::all();
-        return view('admin.car.edit', compact('car', 'companies'));
+        $marks = CarMark::all();
+        return view('admin.car.edit', compact('car', 'companies', 'marks'));
     }
 
     public function update(Request $request, $id)

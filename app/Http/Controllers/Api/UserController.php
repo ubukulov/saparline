@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Models\DirectionPrice;
 use App\Models\Feedback;
 use App\Models\LodgerCar;
+use App\Models\Notification;
 use App\Models\Setting;
 use App\Models\Station;
 use App\Models\Travel;
@@ -1337,6 +1338,10 @@ class UserController extends Controller
                     'user_id' => $place->driver_id,
                 ]);
 
+                Notification::create([
+                    'user_id' => $place->driver_id, 'type' => 'user', 'message' => "Место $newNumber ($message) забронировано"
+                ]);
+
             } else {
                 return response()->json("Место не найдено", 400, ['charset' => 'utf-8'],
                     JSON_UNESCAPED_UNICODE);
@@ -1913,6 +1918,10 @@ class UserController extends Controller
             'orderId' => $request['orderId']
         ]);
 
+        Notification::create([
+            'user_id' => $user->id, 'type' => 'user', 'message' => "Подтвердите бронь клиента $user->name"
+        ]);
+
         return response()->json($user, 200, ['charset' => 'utf-8'],
             JSON_UNESCAPED_UNICODE);
     }
@@ -1950,6 +1959,10 @@ class UserController extends Controller
             'body' => "Ваш билет одобрен",
             'type' => 'place_take',
             'travel_place_id' => $id,
+        ]);
+
+        Notification::create([
+            'user_id' => $order->passenger_id, 'type' => 'user', 'message' => "Ваш билет одобрен"
         ]);
 
         return response()->json('success', 200, ['charset' => 'utf-8'],
@@ -2091,6 +2104,10 @@ class UserController extends Controller
                         'body' => "место $newNumber ($message) забронировано",
                         'type' => 'driver_confirmation',
                         'user_id' => $carTravelPlace->driver_id,
+                    ]);
+
+                    Notification::create([
+                        'user_id' => $carTravelPlace->driver_id, 'type' => 'user', 'message' => "Место $newNumber ($message) забронировано"
                     ]);
 
                 } else {

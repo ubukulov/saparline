@@ -170,6 +170,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{route('admin.marks.index')}}">
+                        <span>Список марки</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{route('admin.car.index')}}">
                         <span>Список машины</span>
                     </a>

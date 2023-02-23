@@ -9,7 +9,7 @@ class Car extends Model
     protected $hidden = ['created_at','updated_at'];
 
     protected $fillable = [
-        'state_number'
+        'state_number', 'mark_id'
     ];
 
     public function car_type()
@@ -30,5 +30,10 @@ class Car extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function mark()
+    {
+        return $this->belongsTo(CarMark::class);
     }
 }

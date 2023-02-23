@@ -11,6 +11,7 @@ use App\Models\CarTravelPlaceOrder;
 use App\Models\CommentDislike;
 use App\Models\CommentLike;
 use App\Models\Favorite;
+use App\Models\Notification;
 use App\Models\Post;
 use App\Models\Push;
 use App\Models\Subscription;
@@ -198,6 +199,10 @@ class UserController extends Controller
             'user_id' => $user->id,
         ]);
 
+        Notification::create([
+            'user_id' => $user->id, 'type' => 'user', 'message' => 'Ваши данные подтверждены'
+        ]);
+
 
         return redirect()->back();
 
@@ -205,7 +210,7 @@ class UserController extends Controller
     public function confirmationReject($id){
 
         //User::where('id',$id)->update(['confirmation' => 'reject']);
-		
+
 		$car = Car::findOrFail($id);
 		$car->is_confirmed = 2;
 		$car->save();
@@ -215,6 +220,10 @@ class UserController extends Controller
             'body' => "ваши данные отклонены",
             'type' => 'driver_reject',
             'user_id' => $id,
+        ]);
+
+        Notification::create([
+            'user_id' => $car->user->id, 'type' => 'user', 'message' => 'Ваши данные отклонены'
         ]);
 
 
@@ -285,7 +294,7 @@ class UserController extends Controller
 		if($car) {
 			Car::destroy($id);
 		}
-		
+
 		return redirect()->route('admin.user.drivers');
     }
 
@@ -405,10 +414,6 @@ class UserController extends Controller
         $order->added = 'admin';
         $order->save();
 
-
-
-
-
         CarTravelPlace::where('car_travel_order_id',$id)->update([
             'status' => 'take',
             'added' => 'admin'
@@ -427,7 +432,9 @@ class UserController extends Controller
         ]);
 
 
-
+        Notification::create([
+            'user_id' => $order->passenger_id, 'type' => 'user', 'message' => 'Место забронировано'
+        ]);
 
 
 
@@ -449,6 +456,10 @@ class UserController extends Controller
             'added' => 'admin'
         ]);
 
+        Notification::create([
+            'user_id' => $order->passenger_id, 'type' => 'user', 'message' => 'Ваш запрос на бронирование мест отклонено'
+        ]);
+
         return redirect()->back();
     }
     public function orderCancel($id){
@@ -465,6 +476,10 @@ class UserController extends Controller
 				'type' => 'cancel',
 				'user_id' => $order->passenger_id,
 			]);
+
+            Notification::create([
+                'user_id' => $order->passenger_id, 'type' => 'user', 'message' => 'Вы вернули билет'
+            ]);
 		}
 
         $order->status = 'cancel';
@@ -550,6 +565,10 @@ class UserController extends Controller
             'user_id' => $user->id,
         ]);
 
+        Notification::create([
+            'user_id' => $user->id, 'type' => 'user', 'message' => 'Ваши данные подтверждены'
+        ]);
+
 
         return redirect()->back();
     }
@@ -567,6 +586,9 @@ class UserController extends Controller
             'user_id' => $id,
         ]);
 
+        Notification::create([
+            'user_id' => $user->id, 'type' => 'user', 'message' => 'Ваши данные отклонены'
+        ]);
 
         return redirect()->back();
     }
@@ -588,14 +610,14 @@ class UserController extends Controller
             ->get();
         return view('admin.car_travel.order_details', compact('car_travel_place_orders'));
     }
-	
+
 	public function editLodger($lodger_id)
 	{
 		$lodger = User::findOrFail($lodger_id);
 		$companies = Company::all();
 		return view('admin.user.editLodger', compact('lodger', 'companies'));
 	}
-	
+
 	public function saveLodger(Request $request, $id)
 	{
 		$lodger = User::findOrFail($id);
@@ -606,24 +628,24 @@ class UserController extends Controller
 		$lodger->save();
 		return redirect()->route('admin.user.lodgers');
 	}
-	
+
 	public function destroyLodger($lodger_id)
 	{
 		$lodger = User::findOrFail($lodger_id);
 		if($lodger){
 			User::destroy($lodger_id);
 		}
-		
+
 		return redirect()->route('admin.user.lodgers');
 	}
-	
+
 	public function destroyPassenger($passenger_id)
 	{
 		User::destroy($passenger_id);
-		
+
 		return redirect()->route('admin.user.passengers');
 	}
-	
+
 	public function soldTickets()
 	{
 		$soldTickets = CarTravelPlaceOrder::where(['status' => 'take'])

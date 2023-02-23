@@ -168,5 +168,8 @@ Route::name('admin.')->namespace('Admin')->group(function () {
             Route::get('/{car_id}/approve-images', 'CarImageController@approveImages')->name('car.approve-images');
             Route::get('/{car_id}/reject-images', 'CarImageController@rejectImages')->name('car.reject-images');
         });
+
+        # Марка машины
+        Route::resource('marks', 'MarkController');
     });
 });

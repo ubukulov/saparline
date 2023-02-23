@@ -19,6 +19,15 @@
         </div>
 
         <div class="form-group">
+            <label>Марка</label>
+            <select name="mark_id" class="form-control">
+                @foreach($marks as $mark)
+                    <option @if($mark->id == $car->mark_id) selected @endif value="{{ $mark->id }}">{{ $mark->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="form-group">
             <button class="btn btn-primary" type="submit">Сохранить</button>
         </div>
     </form>

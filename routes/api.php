@@ -104,6 +104,9 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
     Route::post('checking-confirmation-for-change-role', 'UserController@checkingConfirmationForChangeRole');
 
+    # Car Marks
+    Route::get('car-marks', 'CommonController@getCarMarks');
+
     Route::middleware(['apiCheck'])->group(function () {
         Route::post('profile/logout','UserController@logout');
         Route::post('profile/confirmation','UserController@confirmation');
@@ -173,5 +176,8 @@ Route::prefix('v1')->namespace('Api')->group(function () {
             Route::delete('/{ride_id}/delete', 'RideController@deleteRide');
             Route::post('/get-info-for-driver', 'RideController@getInfoForDriver');
         });
+
+        # Notifications
+        Route::get('notifications', 'NotificationController@get');
     });
 });
