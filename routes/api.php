@@ -107,6 +107,8 @@ Route::prefix('v1')->namespace('Api')->group(function () {
     # Car Marks
     Route::get('car-marks', 'CommonController@getCarMarks');
 
+    Route::get('travel/list','UserController@travelList');	
+
     Route::middleware(['apiCheck'])->group(function () {
         Route::post('profile/logout','UserController@logout');
         Route::post('profile/confirmation','UserController@confirmation');
@@ -125,7 +127,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         Route::post('travel/add','UserController@travelAdd');
         Route::post('travel/delete','UserController@travelDelete');
         Route::get('travel/my-list','UserController@travelMyList');
-        Route::get('travel/list','UserController@travelList');
+        #Route::get('travel/list','UserController@travelList');
         Route::get('travel/histories','UserController@travelHistories');
 
         Route::get('travel/show','UserController@travelShow');

@@ -50,14 +50,6 @@
                             <img src="{{asset($dataImages->image)}}" width="350">
                         </div>
                     @endif
-
-                    @if($dataImages->image)
-                        <div class="col-md-4">
-                            <h4>Фото транспорта 1</h4>
-                            <img src="{{asset($dataImages->image??'')}}" style="max-width: 350px;max-height: 400px"
-                                 width="350">
-                        </div>
-                    @endif
                 </div>
                 <div class="row">
                     @if($dataImages->image1)
