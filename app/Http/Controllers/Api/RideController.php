@@ -39,7 +39,7 @@ class RideController extends Controller
                     ->toArray(), [
                     'title' => 'Saparline',
                     'body' => $user_travel_notice->from_city->name . " -> " . $user_travel_notice->to_city->name . " новые публикация",
-                    'type' => 'driver_confirmation',
+                    'type' => 'driver_notice',
                 ]);
             }
         }
