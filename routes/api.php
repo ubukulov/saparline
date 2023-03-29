@@ -107,7 +107,7 @@ Route::prefix('v1')->namespace('Api')->group(function () {
     # Car Marks
     Route::get('car-marks', 'CommonController@getCarMarks');
 
-    Route::get('travel/list','UserController@travelList');	
+    Route::get('travel/list','UserController@travelList');
 
     Route::middleware(['apiCheck'])->group(function () {
         Route::post('profile/logout','UserController@logout');
@@ -181,5 +181,9 @@ Route::prefix('v1')->namespace('Api')->group(function () {
 
         # Notifications
         Route::get('notifications', 'NotificationController@get');
+
+        # API for User Travels settings
+        Route::post('sign-for-notice', 'NotificationController@signForNotice');
+        Route::get('get-list-my-notice', 'NotificationController@getListMyNotice');
     });
 });

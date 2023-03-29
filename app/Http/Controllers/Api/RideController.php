@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Ride;
 use App\Models\User;
+use App\Packages\Firebase;
+use App\UserTravel;
 use Illuminate\Http\Request;
 
 class RideController extends Controller
@@ -25,6 +27,23 @@ class RideController extends Controller
     {
         $data = $request->all();
         Ride::create($data);
+
+        $user_travel_notices = UserTravel::where(['from_city_id' => $data['from_city_id'], 'to_city_id' => $data['to_city_id']])->get();
+        if(count($user_travel_notices) > 0) {
+            foreach ($user_travel_notices as $user_travel_notice) {
+
+                Firebase::sendMultiple(User::where('id', $user_travel_notice->user_id)
+                    ->where('push', 1)
+                    ->select('device_token')
+                    ->pluck('device_token')
+                    ->toArray(), [
+                    'title' => 'Saparline',
+                    'body' => $user_travel_notice->from_city->name . " -> " . $user_travel_notice->to_city->name . " новые публикация",
+                    'type' => 'driver_confirmation',
+                ]);
+            }
+        }
+
         return response('Success');
     }
 
