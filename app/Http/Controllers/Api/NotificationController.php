@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
-use App\UserTravel;
+use App\Models\UserTravel;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
@@ -31,7 +31,9 @@ class NotificationController extends Controller
     public function getListMyNotice(Request $request)
     {
         $user = $request['user'];
-        $my_travel_list_notices = UserTravel::where(['user_id' => $user->id])->get();
+        $my_travel_list_notices = UserTravel::where(['user_id' => $user->id])
+            ->with('from_city', 'to_city')
+            ->get();
         return response()->json($my_travel_list_notices);
     }
 }
