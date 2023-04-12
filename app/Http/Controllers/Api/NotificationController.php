@@ -24,7 +24,7 @@ class NotificationController extends Controller
             return response()->json("Запись с такими параметрами уже имеется", 406, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         } else {
             UserTravel::create($data);
-            return response()->json('Запись успешно принять!', 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
+            return response()->json('Запись успешно принята!', 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
         }
     }
 
@@ -35,5 +35,16 @@ class NotificationController extends Controller
             ->with('from_city', 'to_city')
             ->get();
         return response()->json($my_travel_list_notices);
+    }
+
+    public function deleteNotification($id)
+    {
+        $user_travel = UserTravel::findOrFail($id);
+        if($user_travel) {
+            UserTravel::destroy($id);
+            return response('success', 200);
+        } else {
+            return response('already deleted', 403);
+        }
     }
 }
