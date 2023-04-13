@@ -1,9 +1,7 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
-use App\Models\City;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class UserTravel extends Model

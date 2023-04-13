@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Ride;
 use App\Models\User;
 use App\Packages\Firebase;
-use App\UserTravel;
+use App\Models\UserTravel;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class RideController extends Controller
@@ -85,16 +86,20 @@ class RideController extends Controller
     public function getInfoForDriver(Request $request)
     {
         $data = $request->all();
-        $from_city_id = $data['from_city_id'];
-        $to_city_id = $data['to_city_id'];
-        $departure_date = $data['departure_date'];
+        $from_city_id = (isset($data['from_city_id'])) ? $data['from_city_id'] : null;
+        $to_city_id = (isset($data['to_city_id'])) ? $data['to_city_id'] : null;
+        $departure_date = (isset($data['departure_date'])) ? $data['departure_date'] : null;
         //$departure_time = $data['departure_time'];
 
-        $rides = Ride::where(['from_city_id' => $from_city_id, 'to_city_id' => $to_city_id, 'status' => 'not'])
-                ->with('user', 'from_city', 'to_city')
-                ->whereDate('departure_date', '=', $departure_date)
-                ->get();
+        $rides = Ride::where(['status' => 'not'])
+            ->with('user', 'from_city', 'to_city');
 
-        return response()->json($rides);
+        $rides = (!is_null($from_city_id)) ? $rides->where(['from_city_id' => $from_city_id]) : $rides;
+
+        $rides = (!is_null($to_city_id)) ? $rides->where(['to_city_id' => $to_city_id]) : $rides;
+
+        $rides = (!is_null($departure_date)) ? $rides->whereDate('departure_date', '=' ,$departure_date) : $rides;
+
+        return response()->json($rides->get());
     }
 }
