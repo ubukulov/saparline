@@ -180,7 +180,10 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         });
 
         # Notifications
-        Route::get('notifications', 'NotificationController@get');
+        Route::group(['prefix' => 'notifications'], function(){
+            Route::get('/', 'NotificationController@get');
+            Route::delete('/{id}/delete', 'NotificationController@deleteNotification');
+        });
 
         # API for User Travels settings
         Route::post('sign-for-notice', 'NotificationController@signForNotice');
