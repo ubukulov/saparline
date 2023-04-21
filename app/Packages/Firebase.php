@@ -38,7 +38,7 @@ class Firebase
         $url = 'https://fcm.googleapis.com/fcm/send';
 
         $headers = array(
-            'Authorization: key=AAAAAvA-Iuw:APA91bHCdNpZ2Cy39wAxjEWFrBcxE1W6YWpbeTY7qlbjm5LIdejn3yF3GZL348pm3LQxHbpLfo7jQykJTkVD4mkkjNL8WTZNtYovt4SefE1VsZSzaFNoQu553xEe0wq40hNO41qMBZIN',
+            'Authorization: key=AAAA0BAlhAg:APA91bEYSQO1wUsb0T8NbHVQydeMIcwo9olU0PkWyUfgtmwvh-VjaGoCBoLDDTFL3TcG2XsmuEsN6vDmeglc4Jlv304EcAgEtUeD59Vt7W4pg7aWRMtS5Zndugr0jPCzxzTuYPQhIbH_',
             'Content-Type: application/json'
         );
         // Open connection
