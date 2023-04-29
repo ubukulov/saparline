@@ -54,7 +54,6 @@ class CashierController extends Controller
 
     public function firebase()
     {
-		$userIds = [3971];
         //$users = User::whereIn('id', $userIds)->whereRole('passenger')->get();
         //$ids = [5410];
         /*foreach($users as $user) {
@@ -62,13 +61,22 @@ class CashierController extends Controller
         }*/
 
 		//$ids = [5410,6794];
-		$ids = [3971, 226];
+		$ids = [3971,226];
         $message = "Уважаемый пользователь, мы обнаружили ошибку при вашей регистрации. Просим извинения за доставленные неудобства. На данный момент все неполадки устранены. Выполните вход через логин и пароль. Воспользуйтесь функцией «Восстановить», если не помните свой пароль.";
-        Firebase::sendMultiple(User::whereIn('id', $ids)
+        /*Firebase::sendMultiple(User::whereIn('id', $ids)
             ->select('device_token')->pluck('device_token')->toArray('device_token'), [
             'title' => 'Saparline',
             'body' => $message,
             'type' => 'place_take',
+        ]);*/
+        Firebase::sendMultiple(User::whereIn('id', $ids)
+            ->where('push', 1)
+            ->select('device_token')
+            ->pluck('device_token')
+            ->toArray(), [
+            'title' => 'Saparline',
+            'body' => "Алматы -> Шымкент новые публикация",
+            'type' => 'driver_notice',
         ]);
     }
 }
