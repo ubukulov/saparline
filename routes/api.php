@@ -189,5 +189,5 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         Route::post('sign-for-notice', 'NotificationController@signForNotice');
         Route::get('get-list-my-notice', 'NotificationController@getListMyNotice');
     });
-
+    //Route::post('rides/order', 'RideController@order');
 });
