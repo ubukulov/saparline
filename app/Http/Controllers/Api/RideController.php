@@ -91,7 +91,6 @@ class RideController extends Controller
         $from_city_id = (isset($data['from_city_id'])) ? $data['from_city_id'] : null;
         $to_city_id = (isset($data['to_city_id'])) ? $data['to_city_id'] : null;
         $departure_date = (isset($data['departure_date'])) ? $data['departure_date'] : null;
-        //$departure_time = $data['departure_time'];
 
         $rides = Ride::where(['status' => 'not'])
             ->with('user', 'from_city', 'to_city');
@@ -100,7 +99,7 @@ class RideController extends Controller
 
         $rides = (!is_null($to_city_id)) ? $rides->where(['to_city_id' => $to_city_id]) : $rides;
 
-        $rides = (!is_null($departure_date)) ? $rides->whereDate('departure_date', '=' ,$departure_date) : $rides;
+        $rides = (!is_null($departure_date)) ? $rides->whereDate('departure_date', '=' ,$departure_date) : $rides->whereDate('departure_date', '>=', date('Y-m-d'));
 
         return response()->json($rides->get());
     }
