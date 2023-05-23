@@ -188,5 +188,8 @@ Route::prefix('v1')->namespace('Api')->group(function () {
         # API for User Travels settings
         Route::post('sign-for-notice', 'NotificationController@signForNotice');
         Route::get('get-list-my-notice', 'NotificationController@getListMyNotice');
+
+        # Update Device Token
+        Route::post('update-device-token', 'UserController@updateDeviceToken');
     });
 });

@@ -2210,5 +2210,13 @@ class UserController extends Controller
             return response('No places or direction is wrong', 400);
         }
     }
+
+    public function updateDeviceToken(Request $request)
+    {
+        $user = $request['user'];
+        $user->device_token = $request['device_token'];
+        $user->save();
+        return response('success');
+    }
 }
 
