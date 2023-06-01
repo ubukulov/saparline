@@ -846,14 +846,14 @@ class UserController extends Controller
             return response()->json($validator->errors()->first(), 400, ['charset' => 'utf-8'],
                 JSON_UNESCAPED_UNICODE);
         }
-        $carTravelOrderPlaces = CarTravelPlaceOrder::where('car_travel_id', $request['travel_id'])
+        /*$carTravelOrderPlaces = CarTravelPlaceOrder::where('car_travel_id', $request['travel_id'])
             ->where('status', 'take')->get();
 
         if (sizeof($carTravelOrderPlaces) > 0) {
             return response()->json('У вас еще есть пассажиры которые купили билеты', 400,
                 ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
 
-        }
+        }*/
 
         CarTravel::where('id', $request['travel_id'])->delete();
         return response()->json('success', 200, ['charset' => 'utf-8'], JSON_UNESCAPED_UNICODE);
@@ -1813,7 +1813,7 @@ class UserController extends Controller
         }
         $travels = CarTravel::join('cars', 'car_travel.car_id', 'cars.id')
             ->where('cars.id', $request['id'])
-            ->whereRaw("car_travel.destination_time >= CURRENT_TIMESTAMP()")
+            ->whereRaw("car_travel.departure_time >= CURRENT_TIMESTAMP()")
             ->orderBy('car_travel.id', 'desc')
             ->select('car_travel.*')
             ->limit(100)
